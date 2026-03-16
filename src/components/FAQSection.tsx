@@ -7,7 +7,6 @@ const faqs = [
   { q: "Je n'y connais rien en digital, est-ce un problème ?", a: "Pas du tout. On s'occupe de tout et on vous explique chaque étape simplement. Vous n'avez rien de technique à gérer." },
   { q: "Est-ce adapté à mon secteur d'activité ?", a: "Nous travaillons avec des artisans, commerçants, agents immobiliers, restaurateurs et bien d'autres métiers en Aveyron et Occitanie." },
   { q: "Puis-je payer en plusieurs fois ?", a: "Oui, nous proposons le paiement mensuel sur tous nos services pour faciliter votre investissement." },
-  { q: "Que se passe-t-il après la mise en ligne ?", a: "Un suivi est inclus pour s'assurer que tout fonctionne. On mesure les résultats ensemble et on ajuste si nécessaire." },
 ];
 
 const FAQSection = () => (
