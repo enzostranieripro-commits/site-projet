@@ -2,10 +2,13 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import {
   ArrowLeft, Phone, ClipboardList, BarChart3, Users, TrendingUp,
   Clock, Eye, MousePointerClick, ChevronLeft, Package, Globe,
-  Camera, Zap, ArrowUpRight, Activity, Star,
+  Camera, Zap, ArrowUpRight, Activity, Star, Lock,
+  Eye as EyeIcon, EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+
+const ADMIN_PASSWORD = "projetia12";
 
 /* ─────────── Types ─────────── */
 interface DiagnosticEntry { answers: string[]; date: string }
@@ -20,14 +23,13 @@ const AnimatedNumber = ({ value, suffix = "" }: { value: number; suffix?: string
   useEffect(() => {
     setDisplay(0);
     let start = 0;
-    const duration = 1200;
     const steps = 40;
     const increment = value / steps;
     ref.current = setInterval(() => {
       start += increment;
       if (start >= value) { setDisplay(value); if (ref.current) clearInterval(ref.current); }
       else setDisplay(Math.floor(start));
-    }, duration / steps);
+    }, 1200 / steps);
     return () => { if (ref.current) clearInterval(ref.current); };
   }, [value]);
   return <span>{display}{suffix}</span>;
@@ -44,7 +46,7 @@ const Bar = ({ pct, color = "bg-primary" }: { pct: number; color?: string }) => 
   );
 };
 
-/* ─────────── Product family card ─────────── */
+/* ─────────── Product families ─────────── */
 const productFamilies = [
   { key: "Site internet", label: "Création Web", icon: Globe, color: "text-blue-400", bg: "bg-blue-400/10", border: "border-blue-400/20" },
   { key: "Contenu marketing", label: "Contenu Marketing", icon: Camera, color: "text-purple-400", bg: "bg-purple-400/10", border: "border-purple-400/20" },
@@ -91,9 +93,100 @@ const DonutChart = ({ data }: { data: { label: string; value: number; color: str
   );
 };
 
+/* ─────────── Login screen ─────────── */
+const LoginScreen = ({ onSuccess }: { onSuccess: () => void }) => {
+  const [password, setPassword] = useState("");
+  const [show, setShow] = useState(false);
+  const [error, setError] = useState(false);
+  const [shake, setShake] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === ADMIN_PASSWORD) {
+      onSuccess();
+    } else {
+      setError(true);
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      setTimeout(() => setError(false), 2000);
+      setPassword("");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full opacity-10 blur-[150px] pointer-events-none"
+        style={{ background: "linear-gradient(135deg, hsl(var(--primary)), hsl(300 80% 60%))" }}
+      />
+      <div
+        className="relative w-full max-w-sm"
+        style={{ animation: shake ? "shake 0.4s ease-in-out" : "none" }}
+      >
+        <div className="rounded-2xl border border-border bg-secondary/30 backdrop-blur p-8 shadow-2xl">
+          <div className="text-center mb-8">
+            <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
+              <Lock className="size-6 text-primary" />
+            </div>
+            <h1 className="text-xl font-black tracking-tight">Studio Nova</h1>
+            <p className="text-sm text-muted-foreground mt-1">Accès Dashboard Admin</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="relative">
+              <input
+                type={show ? "text" : "password"}
+                placeholder="Mot de passe"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoFocus
+                className={`w-full bg-secondary border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-all pr-10 ${
+                  error
+                    ? "border-red-500 ring-1 ring-red-500/50"
+                    : "border-border focus:border-primary focus:ring-1 focus:ring-primary"
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() => setShow(!show)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {show ? <EyeOff className="size-4" /> : <EyeIcon className="size-4" />}
+              </button>
+            </div>
+
+            {error && (
+              <p className="text-xs text-red-400 text-center">Mot de passe incorrect</p>
+            )}
+
+            <Button type="submit" className="w-full bg-primary text-primary-foreground hover:brightness-110 py-5 rounded-xl text-sm font-semibold">
+              Accéder au dashboard
+            </Button>
+          </form>
+
+          <p className="text-center text-xs text-muted-foreground mt-6">
+            Accès réservé à l'équipe Studio Nova
+          </p>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          20% { transform: translateX(-8px); }
+          40% { transform: translateX(8px); }
+          60% { transform: translateX(-6px); }
+          80% { transform: translateX(6px); }
+        }
+      `}</style>
+    </div>
+  );
+};
+
 /* ─────────── Main component ─────────── */
 const Admin = () => {
   const navigate = useNavigate();
+  const [authenticated, setAuthenticated] = useState(false);
   const [tab, setTab] = useState<TabId>("overview");
   const [diagnostics, setDiagnostics] = useState<DiagnosticEntry[]>([]);
   const [auditRequests, setAuditRequests] = useState<AuditRequest[]>([]);
@@ -103,10 +196,16 @@ const Admin = () => {
   const [productFilter, setProductFilter] = useState<string>("all");
 
   useEffect(() => {
-    setDiagnostics(JSON.parse(localStorage.getItem("diagnostics") || "[]"));
-    setAuditRequests(JSON.parse(localStorage.getItem("audit_requests") || "[]"));
-    setProductRequests(JSON.parse(localStorage.getItem("product_requests") || "[]"));
-  }, []);
+    if (authenticated) {
+      setDiagnostics(JSON.parse(localStorage.getItem("diagnostics") || "[]"));
+      setAuditRequests(JSON.parse(localStorage.getItem("audit_requests") || "[]"));
+      setProductRequests(JSON.parse(localStorage.getItem("product_requests") || "[]"));
+    }
+  }, [authenticated]);
+
+  if (!authenticated) {
+    return <LoginScreen onSuccess={() => setAuthenticated(true)} />;
+  }
 
   const tabs = [
     { id: "overview" as const, label: "Vue d'ensemble", icon: BarChart3 },
@@ -120,7 +219,7 @@ const Admin = () => {
   const todayLeads = auditRequests.filter((r) => new Date(r.createdAt).toDateString() === new Date().toDateString()).length;
 
   const sectorCounts: Record<string, number> = {};
-  [...auditRequests].forEach((item) => {
+  auditRequests.forEach((item) => {
     const s = item.secteur || "Inconnu";
     sectorCounts[s] = (sectorCounts[s] || 0) + 1;
   });
@@ -140,7 +239,8 @@ const Admin = () => {
 
   const diagQuestions = ["Secteur d'activité", "Site internet", "Demandes clients", "Réseaux sociaux", "Tâches répétitives"];
 
-  const recentActivity = [...auditRequests.map((a) => ({ type: "Audit", name: `${a.prenom} ${a.nom}`, detail: a.secteur, date: a.createdAt, color: "bg-blue-500/20 text-blue-400" })),
+  const recentActivity = [
+    ...auditRequests.map((a) => ({ type: "Audit", name: `${a.prenom} ${a.nom}`, detail: a.secteur, date: a.createdAt, color: "bg-blue-500/20 text-blue-400" })),
     ...productRequests.map((p) => ({ type: p.product, name: `${p.prenom} ${p.nom}`, detail: p.secteur, date: p.createdAt, color: "bg-primary/20 text-primary" })),
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 6);
 
@@ -158,9 +258,14 @@ const Admin = () => {
             <h1 className="text-base font-bold">Dashboard Admin</h1>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-          <span className="text-xs text-muted-foreground">Studio Nova — Live</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+            <span className="text-xs text-muted-foreground">Studio Nova — Live</span>
+          </div>
+          <Button variant="ghost" size="sm" onClick={() => setAuthenticated(false)} className="text-xs text-muted-foreground hover:text-foreground">
+            <Lock className="size-3 mr-1" /> Verrouiller
+          </Button>
         </div>
       </div>
 
@@ -185,7 +290,6 @@ const Admin = () => {
         {/* ══════════ OVERVIEW ══════════ */}
         {tab === "overview" && (
           <div className="space-y-8">
-            {/* KPI cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { label: "Total Leads", value: totalLeads, icon: Users, color: "text-blue-400", bg: "from-blue-500/10", suffix: "" },
@@ -196,19 +300,15 @@ const Admin = () => {
                 <div key={kpi.label} className={`relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br ${kpi.bg} to-transparent p-5`}>
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{kpi.label}</span>
-                    <div className={`w-8 h-8 rounded-xl ${kpi.bg.replace("from-", "bg-")} flex items-center justify-center`}>
-                      <kpi.icon className={`size-4 ${kpi.color}`} />
-                    </div>
+                    <kpi.icon className={`size-4 ${kpi.color}`} />
                   </div>
                   <p className={`text-4xl font-black tabular-nums ${kpi.color}`}>
                     <AnimatedNumber value={kpi.value} suffix={kpi.suffix} />
                   </p>
-                  <div className="absolute bottom-0 right-0 w-20 h-20 rounded-full opacity-5 blur-2xl" style={{ background: "hsl(var(--primary))" }} />
                 </div>
               ))}
             </div>
 
-            {/* Product families visual */}
             <div>
               <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
                 <Star className="size-4 text-primary" /> Demandes par famille de produit
@@ -230,8 +330,7 @@ const Admin = () => {
                       </div>
                       <div>
                         <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                          <span>Part des demandes</span>
-                          <span>{pct}%</span>
+                          <span>Part des demandes</span><span>{pct}%</span>
                         </div>
                         <Bar pct={pct} color={f.color.replace("text-", "bg-")} />
                       </div>
@@ -242,7 +341,6 @@ const Admin = () => {
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Sectors breakdown */}
               <div className="rounded-2xl border border-border bg-secondary/20 p-6">
                 <h3 className="text-sm font-semibold mb-5 flex items-center gap-2">
                   <Eye className="size-4 text-primary" /> Répartition par secteur
@@ -264,7 +362,6 @@ const Admin = () => {
                 </div>
               </div>
 
-              {/* Recent activity */}
               <div className="rounded-2xl border border-border bg-secondary/20 p-6">
                 <h3 className="text-sm font-semibold mb-5 flex items-center gap-2">
                   <MousePointerClick className="size-4 text-primary" /> Activité récente
@@ -294,7 +391,7 @@ const Admin = () => {
           selectedAudit ? (
             <div className="rounded-2xl border border-border bg-secondary/20 p-6 max-w-2xl mx-auto">
               <button onClick={() => setSelectedAudit(null)} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
-                <ChevronLeft className="size-4" /> Retour à la liste
+                <ChevronLeft className="size-4" /> Retour
               </button>
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold">{selectedAudit.prenom} {selectedAudit.nom}</h3>
@@ -313,11 +410,9 @@ const Admin = () => {
                   </div>
                 ))}
               </div>
-              <div className="flex gap-3 mt-6">
-                <Button size="sm" variant="outline" className="rounded-lg">
-                  <Phone className="size-3 mr-1" /> Appeler
-                </Button>
-              </div>
+              <Button size="sm" variant="outline" className="rounded-lg mt-6">
+                <Phone className="size-3 mr-1" /> Appeler
+              </Button>
             </div>
           ) : (
             <div className="rounded-2xl border border-border overflow-hidden">
@@ -325,32 +420,30 @@ const Admin = () => {
                 <h3 className="font-semibold">Demandes Audits</h3>
                 <p className="text-xs text-muted-foreground mt-1">{auditRequests.length} demande(s)</p>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border bg-secondary/20">
-                      <th className="text-left px-4 py-3 text-muted-foreground font-medium">Date</th>
-                      <th className="text-left px-4 py-3 text-muted-foreground font-medium">Nom</th>
-                      <th className="text-left px-4 py-3 text-muted-foreground font-medium">Email</th>
-                      <th className="text-left px-4 py-3 text-muted-foreground font-medium">Secteur</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {auditRequests.length === 0 ? (
-                      <tr><td colSpan={4} className="px-4 py-10 text-center text-muted-foreground">Aucune demande pour l'instant</td></tr>
-                    ) : (
-                      auditRequests.map((r, i) => (
-                        <tr key={i} onClick={() => setSelectedAudit(r)} className="border-b border-border/50 hover:bg-secondary/50 transition-colors cursor-pointer">
-                          <td className="px-4 py-3 text-muted-foreground">{new Date(r.createdAt).toLocaleDateString("fr-FR")}</td>
-                          <td className="px-4 py-3 font-medium">{r.prenom} {r.nom}</td>
-                          <td className="px-4 py-3">{r.email}</td>
-                          <td className="px-4 py-3"><span className="text-[11px] font-semibold bg-primary/10 text-primary px-2.5 py-1 rounded-full">{r.secteur}</span></td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-secondary/20">
+                    <th className="text-left px-4 py-3 text-muted-foreground font-medium">Date</th>
+                    <th className="text-left px-4 py-3 text-muted-foreground font-medium">Nom</th>
+                    <th className="text-left px-4 py-3 text-muted-foreground font-medium">Email</th>
+                    <th className="text-left px-4 py-3 text-muted-foreground font-medium">Secteur</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {auditRequests.length === 0 ? (
+                    <tr><td colSpan={4} className="px-4 py-10 text-center text-muted-foreground">Aucune demande pour l'instant</td></tr>
+                  ) : (
+                    auditRequests.map((r, i) => (
+                      <tr key={i} onClick={() => setSelectedAudit(r)} className="border-b border-border/50 hover:bg-secondary/50 transition-colors cursor-pointer">
+                        <td className="px-4 py-3 text-muted-foreground">{new Date(r.createdAt).toLocaleDateString("fr-FR")}</td>
+                        <td className="px-4 py-3 font-medium">{r.prenom} {r.nom}</td>
+                        <td className="px-4 py-3">{r.email}</td>
+                        <td className="px-4 py-3"><span className="text-[11px] font-semibold bg-primary/10 text-primary px-2.5 py-1 rounded-full">{r.secteur}</span></td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           )
         )}
@@ -378,32 +471,30 @@ const Admin = () => {
                 <h3 className="font-semibold">Diagnostics réalisés</h3>
                 <p className="text-xs text-muted-foreground mt-1">{diagnostics.length} diagnostic(s)</p>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border bg-secondary/20">
-                      <th className="text-left px-4 py-3 text-muted-foreground font-medium">Date</th>
-                      <th className="text-left px-4 py-3 text-muted-foreground font-medium">Secteur</th>
-                      <th className="text-left px-4 py-3 text-muted-foreground font-medium">Site existant</th>
-                      <th className="text-left px-4 py-3 text-muted-foreground font-medium">Demandes clients</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {diagnostics.length === 0 ? (
-                      <tr><td colSpan={4} className="px-4 py-10 text-center text-muted-foreground">Aucun diagnostic</td></tr>
-                    ) : (
-                      diagnostics.map((d, i) => (
-                        <tr key={i} onClick={() => setSelectedDiagnostic(d)} className="border-b border-border/50 hover:bg-secondary/50 transition-colors cursor-pointer">
-                          <td className="px-4 py-3 text-muted-foreground">{new Date(d.date).toLocaleDateString("fr-FR")}</td>
-                          <td className="px-4 py-3 font-medium">{d.answers[0] || "—"}</td>
-                          <td className="px-4 py-3">{d.answers[1] || "—"}</td>
-                          <td className="px-4 py-3">{d.answers[2] || "—"}</td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-secondary/20">
+                    <th className="text-left px-4 py-3 text-muted-foreground font-medium">Date</th>
+                    <th className="text-left px-4 py-3 text-muted-foreground font-medium">Secteur</th>
+                    <th className="text-left px-4 py-3 text-muted-foreground font-medium">Site existant</th>
+                    <th className="text-left px-4 py-3 text-muted-foreground font-medium">Demandes clients</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {diagnostics.length === 0 ? (
+                    <tr><td colSpan={4} className="px-4 py-10 text-center text-muted-foreground">Aucun diagnostic</td></tr>
+                  ) : (
+                    diagnostics.map((d, i) => (
+                      <tr key={i} onClick={() => setSelectedDiagnostic(d)} className="border-b border-border/50 hover:bg-secondary/50 transition-colors cursor-pointer">
+                        <td className="px-4 py-3 text-muted-foreground">{new Date(d.date).toLocaleDateString("fr-FR")}</td>
+                        <td className="px-4 py-3 font-medium">{d.answers[0] || "—"}</td>
+                        <td className="px-4 py-3">{d.answers[1] || "—"}</td>
+                        <td className="px-4 py-3">{d.answers[2] || "—"}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           )
         )}
@@ -428,7 +519,6 @@ const Admin = () => {
               </select>
             </div>
 
-            {/* Product family cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {productFamilies.map((f) => {
                 const count = productRequests.filter((p) => p.product === f.key).length;
@@ -455,13 +545,11 @@ const Admin = () => {
               })}
             </div>
 
-            {/* Donut + table */}
             <div className="grid md:grid-cols-2 gap-6">
               <div className="rounded-2xl border border-border bg-secondary/20 p-6 flex flex-col items-center justify-center">
                 <h4 className="text-sm font-semibold mb-6 self-start">Répartition visuelle</h4>
                 <DonutChart data={donutData} />
               </div>
-
               <div className="rounded-2xl border border-border overflow-hidden">
                 <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
                   <table className="w-full text-sm">
