@@ -291,7 +291,7 @@ const AdminClientsTab = ({ leads, bookings, products, subscriptions, fetchAll }:
                   <p className="text-xs text-muted-foreground mb-2 font-medium">Niveau d'offre</p>
                   <div className="flex gap-2">
                     {OFFER_LEVELS.map(o => (
-                      <button key={o} onClick={() => setSubForm(prev => ({ ...prev, offer_level: o }))}
+                      <button key={o} onClick={() => handleOfferChange(o)}
                         className={`flex-1 text-sm font-semibold py-3 rounded-xl border-2 transition-all ${subForm.offer_level === o ? offerColor(o) : "border-border/30 text-muted-foreground hover:border-border"}`}>
                         {o}
                       </button>
