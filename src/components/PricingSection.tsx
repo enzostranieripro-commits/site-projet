@@ -37,7 +37,8 @@ const PricingSection = () => {
   const optionsSetup = offer.options.reduce((s, o, i) => s + (selectedOptions[i] ? o.setup : 0), 0);
   const baseMonthly = offer.monthly + optionsMonthly;
 
-  const totalDisplay = selectedFormat === 0 ? `${baseMonthly}€/mois` : selectedFormat === 1 ? `${Math.round(baseMonthly * 10)}€/an` : `${baseMonthly * 12 + optionsSetup}€ unique`;
+  const oneTimeTotal = offer.oneTime + optionsSetup;
+  const totalDisplay = selectedFormat === 0 ? `${baseMonthly}€/mois` : selectedFormat === 1 ? `${Math.round(baseMonthly * 10)}€/an` : `${oneTimeTotal.toLocaleString("fr-FR")}€`;
 
   const toggleOption = (i: number) => { const n = [...selectedOptions]; n[i] = !n[i]; setSelectedOptions(n); };
 
