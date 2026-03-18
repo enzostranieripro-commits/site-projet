@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import {
   LayoutDashboard, Users, Briefcase, Server, Calendar, Package, BarChart3, Settings,
-  LogOut, Wifi, WifiOff, ChevronLeft, Bell, Search
+  LogOut, Wifi, WifiOff, ChevronLeft, Bell, Search, FolderKanban, DollarSign
 } from "lucide-react";
 import AdminDashboardTab from "@/components/admin/AdminDashboardTab";
 import AdminLeadsTab from "@/components/admin/AdminLeadsTab";
@@ -14,8 +14,10 @@ import AdminBookingsTab from "@/components/admin/AdminBookingsTab";
 import AdminOffersTab from "@/components/admin/AdminOffersTab";
 import AdminDiagnosticsTab from "@/components/admin/AdminDiagnosticsTab";
 import AdminSettingsTab from "@/components/admin/AdminSettingsTab";
+import AdminProjectsTab from "@/components/admin/AdminProjectsTab";
+import AdminFinanceTab from "@/components/admin/AdminFinanceTab";
 
-type Tab = "dashboard" | "leads" | "clients" | "hosting" | "bookings" | "offers" | "diagnostics" | "settings";
+type Tab = "dashboard" | "leads" | "clients" | "hosting" | "bookings" | "offers" | "diagnostics" | "settings" | "projects" | "finance";
 
 const SIDEBAR_SECTIONS = [
   {
