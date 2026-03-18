@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import {
-  Search, User, Mail, Phone, MapPin, Calendar, TrendingUp,
+  Search, User, Mail, Phone, MapPin, Calendar, TrendingUp, Pencil,
   ChevronRight, X, Save, Globe, CreditCard, Package
 } from "lucide-react";
 
@@ -37,6 +37,8 @@ const AdminClientsTab = ({ leads, bookings, products, subscriptions, fetchAll }:
   const [selectedClient, setSelectedClient] = useState<any | null>(null);
   const [notes, setNotes] = useState<any[]>([]);
   const [followUps, setFollowUps] = useState<any[]>([]);
+  const [editingContact, setEditingContact] = useState(false);
+  const [contactForm, setContactForm] = useState({ prenom: "", nom: "", email: "", telephone: "", secteur: "" });
   const [editingSub, setEditingSub] = useState(false);
   const [offerPricing, setOfferPricing] = useState<Record<string, number>>({ "Visibilité": 297, "Autorité": 497, "Conversion": 797 });
   const [subForm, setSubForm] = useState({
@@ -77,6 +79,8 @@ const AdminClientsTab = ({ leads, bookings, products, subscriptions, fetchAll }:
   const openClient = async (client: any) => {
     setSelectedClient(client);
     setEditingSub(false);
+    setEditingContact(false);
+    setContactForm({ prenom: client.prenom, nom: client.nom, email: client.email, telephone: client.telephone || "", secteur: client.secteur });
     if (client.subscription) {
       setSubForm({
         offer_level: client.subscription.offer_level, options: client.subscription.options || [],
@@ -93,6 +97,20 @@ const AdminClientsTab = ({ leads, bookings, products, subscriptions, fetchAll }:
     ]);
     if (n.data) setNotes(n.data);
     if (f.data) setFollowUps(f.data);
+  };
+
+  const saveContact = async () => {
+    if (!selectedClient) return;
+    await supabase.from("audit_requests").update({
+      prenom: contactForm.prenom.trim(),
+      nom: contactForm.nom.trim(),
+      email: contactForm.email.trim(),
+      telephone: contactForm.telephone.trim() || null,
+      secteur: contactForm.secteur.trim(),
+    } as any).eq("id", selectedClient.id);
+    setEditingContact(false);
+    toast("Informations mises à jour ✓");
+    fetchAll();
   };
 
   const toggleOption = (opt: string) => {
@@ -214,13 +232,49 @@ const AdminClientsTab = ({ leads, bookings, products, subscriptions, fetchAll }:
 
           {/* Contact */}
           <div className="card-surface p-5">
-            <h3 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">Contact</h3>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="flex items-center gap-2 text-muted-foreground"><Mail className="size-3.5" />{selectedClient.email}</div>
-              <div className="flex items-center gap-2 text-muted-foreground"><Phone className="size-3.5" />{selectedClient.telephone || "—"}</div>
-              <div className="flex items-center gap-2 text-muted-foreground"><MapPin className="size-3.5" />{selectedClient.secteur}</div>
-              <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="size-3.5" />Depuis {new Date(selectedClient.created_at).toLocaleDateString("fr-FR")}</div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Informations personnelles</h3>
+              {!editingContact ? (
+                <Button size="sm" variant="ghost" onClick={() => { setEditingContact(true); setContactForm({ prenom: selectedClient.prenom, nom: selectedClient.nom, email: selectedClient.email, telephone: selectedClient.telephone || "", secteur: selectedClient.secteur }); }} className="text-xs h-7">
+                  <Pencil className="size-3 mr-1" />Modifier
+                </Button>
+              ) : (
+                <div className="flex gap-1.5">
+                  <Button size="sm" variant="ghost" onClick={() => setEditingContact(false)} className="text-xs h-7">Annuler</Button>
+                  <Button size="sm" onClick={saveContact} className="text-xs h-7"><Save className="size-3 mr-1" />Enregistrer</Button>
+                </div>
+              )}
             </div>
+            {editingContact ? (
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { key: "prenom", label: "Prénom", icon: User },
+                  { key: "nom", label: "Nom", icon: User },
+                  { key: "email", label: "Email", icon: Mail },
+                  { key: "telephone", label: "Téléphone", icon: Phone },
+                  { key: "secteur", label: "Secteur", icon: MapPin },
+                ].map(field => (
+                  <div key={field.key} className={field.key === "secteur" ? "col-span-2" : ""}>
+                    <label className="text-[11px] text-muted-foreground mb-1 block">{field.label}</label>
+                    <div className="relative">
+                      <field.icon className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+                      <input
+                        value={(contactForm as any)[field.key]}
+                        onChange={e => setContactForm(prev => ({ ...prev, [field.key]: e.target.value }))}
+                        className="w-full bg-secondary/50 rounded-lg pl-9 pr-3 py-2 text-sm outline-none border border-border/20 focus:border-primary/30 transition-colors"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex items-center gap-2 text-muted-foreground"><Mail className="size-3.5" />{selectedClient.email}</div>
+                <div className="flex items-center gap-2 text-muted-foreground"><Phone className="size-3.5" />{selectedClient.telephone || "—"}</div>
+                <div className="flex items-center gap-2 text-muted-foreground"><MapPin className="size-3.5" />{selectedClient.secteur}</div>
+                <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="size-3.5" />Depuis {new Date(selectedClient.created_at).toLocaleDateString("fr-FR")}</div>
+              </div>
+            )}
           </div>
 
           {/* Contract */}
