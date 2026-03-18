@@ -88,7 +88,10 @@ const Admin = () => {
             </button>
           ))}
         </nav>
-        <a href="/" className="text-xs text-muted-foreground hover:text-foreground mt-4">← Retour au site</a>
+        <a href="/" className="text-xs text-muted-foreground hover:text-foreground mt-2">← Retour au site</a>
+        <button onClick={signOut} className="flex items-center gap-2 text-xs text-destructive hover:text-destructive/80 mt-2">
+          <LogOut className="size-3" />Déconnexion
+        </button>
       </div>
 
       <div className="flex-1 p-8 overflow-y-auto">
