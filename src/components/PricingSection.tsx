@@ -62,9 +62,13 @@ const PricingSection = () => {
                   <div className={`h-1 rounded-full mb-4 ${o.color === "visibility" ? "bg-visibility" : o.color === "authority" ? "bg-primary" : "bg-conversion"}`} />
                   <o.icon className={`size-6 mb-2 ${o.color === "visibility" ? "text-visibility" : o.color === "authority" ? "text-primary" : "text-conversion"}`} />
                   <h3 className="font-bold text-lg">{o.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-2">{o.tagline}</p>
-                  <p className="text-2xl font-extrabold">{o.monthly}€<span className="text-sm font-normal text-muted-foreground">/mois</span></p>
-                  <p className="text-xs text-muted-foreground mt-1">{o.users} clients actifs</p>
+                  <p className="text-sm text-muted-foreground mb-3">{o.tagline}</p>
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">À partir de</p>
+                    <p className="text-2xl font-extrabold">{o.monthly}€<span className="text-sm font-normal text-muted-foreground">/mois TTC</span></p>
+                    <p className="text-sm font-semibold text-muted-foreground">ou {o.oneTime.toLocaleString("fr-FR")}€ <span className="text-xs font-normal">achat unique TTC</span></p>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">{o.users} clients actifs</p>
                 </button>
               ))}
             </motion.div>
