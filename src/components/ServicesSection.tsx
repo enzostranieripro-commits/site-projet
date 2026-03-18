@@ -5,9 +5,9 @@ import { useAuditModal } from "@/contexts/AuditModalContext";
 import SectionHeader from "./SectionHeader";
 
 const offers = [
-  { name: "Visibilité", tagline: "Landing page", price: "59€", icon: Globe, color: "visibility" as const, clients: 18, features: ["Page unique optimisée SEO", "Formulaire de contact", "Responsive mobile"], popular: false },
-  { name: "Autorité", tagline: "Site vitrine multi-pages", price: "119€", icon: Layers, color: "authority" as const, clients: 22, features: ["Jusqu'à 5 pages", "Blog intégré", "Google My Business"], popular: true },
-  { name: "Conversion", tagline: "Site e-commerce", price: "199€", icon: ShoppingCart, color: "conversion" as const, clients: 7, features: ["Boutique en ligne", "Paiement sécurisé", "Gestion des stocks"], popular: false },
+  { name: "Visibilité", tagline: "Landing page", monthly: 59, oneTime: 1200, icon: Globe, color: "visibility" as const, clients: 18, features: ["Page unique optimisée SEO", "Formulaire de contact", "Responsive mobile"], popular: false },
+  { name: "Autorité", tagline: "Site vitrine multi-pages", monthly: 119, oneTime: 2400, icon: Layers, color: "authority" as const, clients: 22, features: ["Jusqu'à 5 pages", "Blog intégré", "Google My Business"], popular: true },
+  { name: "Conversion", tagline: "Site e-commerce", monthly: 199, oneTime: 3400, icon: ShoppingCart, color: "conversion" as const, clients: 7, features: ["Boutique en ligne", "Paiement sécurisé", "Gestion des stocks"], popular: false },
 ];
 
 const colorClasses = {
