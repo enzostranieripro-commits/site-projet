@@ -16,8 +16,9 @@ import AdminDiagnosticsTab from "@/components/admin/AdminDiagnosticsTab";
 import AdminSettingsTab from "@/components/admin/AdminSettingsTab";
 import AdminProjectsTab from "@/components/admin/AdminProjectsTab";
 import AdminFinanceTab from "@/components/admin/AdminFinanceTab";
+import AdminBillingTab from "@/components/admin/AdminBillingTab";
 
-type Tab = "dashboard" | "leads" | "clients" | "hosting" | "bookings" | "offers" | "diagnostics" | "settings" | "projects" | "finance";
+type Tab = "dashboard" | "leads" | "clients" | "hosting" | "bookings" | "offers" | "diagnostics" | "settings" | "projects" | "finance" | "billing";
 
 const SIDEBAR_SECTIONS = [
   {
