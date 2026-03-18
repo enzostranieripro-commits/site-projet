@@ -40,10 +40,12 @@ const ServicesSection = () => {
                   ))}
                 </ul>
                 <p className="text-xs text-muted-foreground mb-1">{o.clients} clients actifs</p>
-                <div className="flex items-baseline gap-1 mb-4">
-                  <span className="text-2xl font-extrabold">{o.price}</span>
-                  <span className="text-sm text-muted-foreground">/mois</span>
+                <p className="text-xs text-muted-foreground mb-0.5">À partir de</p>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl font-extrabold">{o.monthly}€</span>
+                  <span className="text-sm text-muted-foreground">/mois TTC</span>
                 </div>
+                <p className="text-sm font-semibold text-muted-foreground mb-4">ou à partir de {o.oneTime.toLocaleString("fr-FR")}€ achat unique TTC</p>
                 <Button className={`w-full rounded-xl ${c.btn} text-white`} onClick={() => open(o.name)}>Demander un audit</Button>
               </motion.div>
             );
