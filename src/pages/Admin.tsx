@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import AdminDashboardTab from "@/components/admin/AdminDashboardTab";
 import AdminLeadsTab from "@/components/admin/AdminLeadsTab";
+import AdminClientsTab from "@/components/admin/AdminClientsTab";
 
 type Tab = "dashboard" | "leads" | "bookings" | "offers" | "diagnostics" | "settings";
 
