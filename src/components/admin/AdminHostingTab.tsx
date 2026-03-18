@@ -153,6 +153,13 @@ const AdminHostingTab = ({ subscriptions, leads, fetchAll }: AdminHostingTabProp
                   {statusBadge(s.payment_status)}
                   <Button
                     size="sm" variant="outline"
+                    className="border-visibility/30 text-visibility hover:bg-visibility/10 text-xs"
+                    onClick={() => updatePaymentStatus(s.id, "a_jour")}
+                  >
+                    <CheckCircle className="size-3 mr-1" />Payé
+                  </Button>
+                  <Button
+                    size="sm" variant="outline"
                     className="border-destructive/30 text-destructive hover:bg-destructive/10 text-xs"
                     onClick={() => updatePaymentStatus(s.id, "suspendu")}
                   >
