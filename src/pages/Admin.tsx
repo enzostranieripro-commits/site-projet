@@ -231,10 +231,12 @@ const Admin = () => {
 
         {/* Content area */}
         <main className="flex-1 p-8 overflow-y-auto">
-          {tab === "dashboard" && <AdminDashboardTab leads={leads} bookings={bookings} products={products} diagnostics={diagnostics} subscriptions={subscriptions} />}
+          {tab === "dashboard" && <AdminDashboardTab leads={leads} bookings={bookings} products={products} diagnostics={diagnostics} subscriptions={subscriptions} payments={payments} />}
+          {tab === "finance" && <AdminFinanceTab subscriptions={subscriptions} payments={payments} leads={leads} fetchAll={fetchAll} />}
           {tab === "leads" && <AdminLeadsTab leads={leads} fetchAll={fetchAll} />}
           {tab === "clients" && <AdminClientsTab leads={leads} bookings={bookings} products={products} subscriptions={subscriptions} fetchAll={fetchAll} />}
-          {tab === "hosting" && <AdminHostingTab subscriptions={subscriptions} leads={leads} fetchAll={fetchAll} />}
+          {tab === "hosting" && <AdminHostingTab subscriptions={subscriptions} leads={leads} payments={payments} fetchAll={fetchAll} />}
+          {tab === "projects" && <AdminProjectsTab leads={leads} projects={projects} fetchAll={fetchAll} />}
           {tab === "bookings" && <AdminBookingsTab bookings={bookings} fetchAll={fetchAll} />}
           {tab === "offers" && <AdminOffersTab products={products} />}
           {tab === "diagnostics" && <AdminDiagnosticsTab diagnostics={diagnostics} />}
