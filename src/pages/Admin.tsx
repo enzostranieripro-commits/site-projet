@@ -8,7 +8,7 @@ import AdminDashboardTab from "@/components/admin/AdminDashboardTab";
 import AdminLeadsTab from "@/components/admin/AdminLeadsTab";
 import AdminClientsTab from "@/components/admin/AdminClientsTab";
 
-type Tab = "dashboard" | "leads" | "bookings" | "offers" | "diagnostics" | "settings";
+type Tab = "dashboard" | "leads" | "clients" | "bookings" | "offers" | "diagnostics" | "settings";
 
 const Admin = () => {
   const { signOut } = useAuth();
