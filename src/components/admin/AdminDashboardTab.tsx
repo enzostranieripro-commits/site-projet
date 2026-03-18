@@ -118,10 +118,12 @@ const AdminDashboardTab = ({ leads, bookings, products, diagnostics, subscriptio
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
         {[
           { label: "Total Leads", value: leads.length, color: "text-primary" },
-          { label: "Pipeline actif", value: leads.filter((l: any) => !["converti", "perdu"].includes(l.status || "nouveau")).length, color: "text-blue-400" },
           { label: "Taux conversion", value: `${convRate}%`, color: "text-conversion" },
           { label: "RDV confirmés", value: confirmedBookings, color: "text-visibility" },
-          { label: "Relances à faire", value: followUps.filter((f: any) => isOverdue(f.scheduled_at) || isToday(f.scheduled_at)).length, color: "text-destructive" },
+          { label: "MRR", value: `${totalMRR.toLocaleString("fr-FR")}€`, color: "text-primary" },
+          { label: "Hébergés", value: hostingCount, color: "text-visibility" },
+          { label: "Relances", value: followUps.filter((f: any) => isOverdue(f.scheduled_at) || isToday(f.scheduled_at)).length, color: "text-destructive" },
+          { label: "Alertes paiement", value: paymentAlerts, color: paymentAlerts > 0 ? "text-destructive" : "text-muted-foreground" },
         ].map(k => (
           <div key={k.label} className="card-surface p-4">
             <p className="text-xs text-muted-foreground">{k.label}</p>
