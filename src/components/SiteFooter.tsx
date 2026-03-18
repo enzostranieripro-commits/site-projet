@@ -7,7 +7,7 @@ const SiteFooter = () => {
     <footer className="border-t border-border/30 py-16 px-4 md:px-8">
       <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-8">
         <div>
-          <span className="font-display text-xl font-extrabold">Studio<span className="text-primary">Nova</span></span>
+          <span className="font-display text-lg font-extrabold">Angelot & Stranieri<span className="text-primary"> Consulting</span></span>
           <p className="text-sm text-muted-foreground mt-3">Agence web pour artisans, commerçants et indépendants en Aveyron & Occitanie.</p>
         </div>
         <div>
@@ -24,11 +24,11 @@ const SiteFooter = () => {
         </div>
         <div>
           <h4 className="font-semibold text-sm mb-4">Contact</h4>
-          <ul className="space-y-2 text-sm text-muted-foreground"><li>contact@studionova.fr</li><li>05 65 00 00 00</li><li>Rodez, Aveyron (12)</li><li>Lun-Ven 9h-18h</li></ul>
+          <ul className="space-y-2 text-sm text-muted-foreground"><li>contact@asconsulting.fr</li><li>05 65 00 00 00</li><li>Rodez, Aveyron (12)</li><li>Lun-Ven 9h-18h</li></ul>
         </div>
       </div>
       <div className="max-w-6xl mx-auto mt-12 pt-6 border-t border-border/30 flex flex-col md:flex-row justify-between items-center text-xs text-muted-foreground">
-        <p>© 2024 Studio Nova. Tous droits réservés.</p>
+        <p>© {new Date().getFullYear()} Angelot & Stranieri Consulting. Tous droits réservés.</p>
         <div className="flex gap-4 mt-2 md:mt-0">
           <a href="#" className="hover:text-foreground">Mentions légales</a>
           <a href="#" className="hover:text-foreground">Politique de confidentialité</a>

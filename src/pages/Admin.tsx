@@ -119,10 +119,10 @@ const Admin = () => {
           {!sidebarCollapsed && (
             <div className="flex items-center gap-2.5 flex-1">
               <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-                <span className="text-primary font-display text-sm font-extrabold">S</span>
+                <span className="text-primary font-display text-xs font-extrabold">AS</span>
               </div>
               <div>
-                <p className="font-display text-sm font-extrabold leading-none">Studio<span className="text-primary">Nova</span></p>
+                <p className="font-display text-xs font-extrabold leading-none">AS<span className="text-primary"> Consulting</span></p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">Back-office</p>
               </div>
             </div>

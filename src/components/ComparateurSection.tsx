@@ -29,7 +29,7 @@ const ComparateurSection = () => {
         <SectionHeader
           label="COMPARATIF"
           title="Pourquoi choisir"
-          highlight="Studio Nova ?"
+          highlight="AS Consulting ?"
           description="Comparez objectivement les 3 options qui s'offrent à vous."
         />
         <motion.div
@@ -46,7 +46,7 @@ const ComparateurSection = () => {
                   <th className="p-4 text-left text-muted-foreground font-medium w-[40%]">Critère</th>
                   <th className="p-4 text-center">
                     <div className="inline-flex flex-col items-center">
-                      <span className="font-display font-bold text-primary">Studio Nova</span>
+                      <span className="font-display font-bold text-primary">AS Consulting</span>
                       <span className="text-xs text-muted-foreground">Agence locale</span>
                     </div>
                   </th>

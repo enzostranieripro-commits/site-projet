@@ -34,8 +34,8 @@ const Login = () => {
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 mb-4">
             <Lock className="size-6 text-primary" />
           </div>
-          <h1 className="font-display text-2xl font-bold">
-            Studio<span className="text-primary">Nova</span>
+          <h1 className="font-display text-xl font-bold">
+            Angelot & Stranieri<span className="text-primary"> Consulting</span>
           </h1>
           <p className="text-sm text-muted-foreground mt-1">Espace administrateur</p>
         </div>
@@ -48,7 +48,7 @@ const Login = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@studionova.fr"
+              placeholder="admin@asconsulting.fr"
               required
             />
           </div>
