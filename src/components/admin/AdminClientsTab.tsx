@@ -79,6 +79,8 @@ const AdminClientsTab = ({ leads, bookings, products, subscriptions, fetchAll }:
   const openClient = async (client: any) => {
     setSelectedClient(client);
     setEditingSub(false);
+    setEditingContact(false);
+    setContactForm({ prenom: client.prenom, nom: client.nom, email: client.email, telephone: client.telephone || "", secteur: client.secteur });
     if (client.subscription) {
       setSubForm({
         offer_level: client.subscription.offer_level, options: client.subscription.options || [],
