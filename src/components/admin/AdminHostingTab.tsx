@@ -80,10 +80,24 @@ const AdminHostingTab = ({ subscriptions, leads, fetchAll }: AdminHostingTabProp
   const STATUS_PIE_COLORS = ["hsl(158, 60%, 48%)", "hsl(35, 85%, 56%)", "hsl(0, 84%, 60%)", "hsl(215, 20%, 55%)"];
 
   const updatePaymentStatus = async (id: string, status: string) => {
-    await supabase.from("client_subscriptions" as any).update({ payment_status: status, updated_at: new Date().toISOString() } as any).eq("id", id);
+    const updateData: any = { payment_status: status, updated_at: new Date().toISOString() };
+    
+    // If marking as paid, reset dates
+    if (status === "a_jour") {
+      const now = new Date();
+      const nextPayment = new Date(now);
+      nextPayment.setMonth(nextPayment.getMonth() + 1);
+      updateData.last_payment_at = now.toISOString();
+      updateData.next_payment_at = nextPayment.toISOString();
+    }
+    
+    await supabase.from("client_subscriptions" as any).update(updateData).eq("id", id);
     fetchAll();
-    if (selectedSub?.id === id) setSelectedSub({ ...selectedSub, payment_status: status });
-    toast(status === "suspendu" ? "⚠️ Accès suspendu" : `Statut paiement → ${PAYMENT_STATUSES.find(p => p.value === status)?.label}`);
+    if (selectedSub?.id === id) setSelectedSub({ ...selectedSub, ...updateData });
+    
+    if (status === "a_jour") toast("✅ Paiement enregistré — prochain dans 1 mois");
+    else if (status === "suspendu") toast("⚠️ Accès suspendu");
+    else toast(`Statut paiement → ${PAYMENT_STATUSES.find(p => p.value === status)?.label}`);
   };
 
   const alertClients = enriched.filter((s: any) => s.payment_status === "retard" || s.payment_status === "impaye");
@@ -137,6 +151,13 @@ const AdminHostingTab = ({ subscriptions, leads, fetchAll }: AdminHostingTabProp
                 </div>
                 <div className="flex items-center gap-2">
                   {statusBadge(s.payment_status)}
+                  <Button
+                    size="sm" variant="outline"
+                    className="border-visibility/30 text-visibility hover:bg-visibility/10 text-xs"
+                    onClick={() => updatePaymentStatus(s.id, "a_jour")}
+                  >
+                    <CheckCircle className="size-3 mr-1" />Payé
+                  </Button>
                   <Button
                     size="sm" variant="outline"
                     className="border-destructive/30 text-destructive hover:bg-destructive/10 text-xs"

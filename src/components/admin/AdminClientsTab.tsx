@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -44,6 +44,7 @@ const AdminClientsTab = ({ leads, bookings, products, subscriptions, fetchAll }:
   const [notes, setNotes] = useState<any[]>([]);
   const [followUps, setFollowUps] = useState<any[]>([]);
   const [editingSub, setEditingSub] = useState(false);
+  const [offerPricing, setOfferPricing] = useState<Record<string, number>>({ "Visibilité": 297, "Autorité": 497, "Conversion": 797 });
   const [subForm, setSubForm] = useState({
     offer_level: "Visibilité",
     options: [] as string[],
@@ -53,6 +54,24 @@ const AdminClientsTab = ({ leads, bookings, products, subscriptions, fetchAll }:
     hosting_domain: "",
     notes: "",
   });
+
+  // Load pricing config
+  useEffect(() => {
+    const loadPricing = async () => {
+      const { data } = await supabase.from("admin_settings" as any).select("value").eq("key", "offer_pricing").single() as any;
+      if (data?.value) setOfferPricing(data.value as any);
+    };
+    loadPricing();
+  }, []);
+
+  // Auto-fill price when offer level changes
+  const handleOfferChange = (offer: string) => {
+    setSubForm(prev => ({
+      ...prev,
+      offer_level: offer,
+      monthly_amount: offerPricing[offer] || prev.monthly_amount,
+    }));
+  };
 
   const clients = useMemo(() => {
     return leads
@@ -109,7 +128,13 @@ const AdminClientsTab = ({ leads, bookings, products, subscriptions, fetchAll }:
 
   const saveSub = async () => {
     if (!selectedClient) return;
-    const payload = {
+    
+    // Auto-calculate next_payment_at (1 month from now for new subscriptions)
+    const now = new Date();
+    const nextPayment = new Date(now);
+    nextPayment.setMonth(nextPayment.getMonth() + 1);
+    
+    const payload: any = {
       lead_id: selectedClient.id,
       offer_level: subForm.offer_level,
       options: subForm.options,
@@ -118,13 +143,22 @@ const AdminClientsTab = ({ leads, bookings, products, subscriptions, fetchAll }:
       hosting_included: subForm.hosting_included,
       hosting_domain: subForm.hosting_domain || null,
       notes: subForm.notes || null,
-      updated_at: new Date().toISOString(),
+      updated_at: now.toISOString(),
     };
 
+    // For new abonnements, set payment dates
+    if (subForm.payment_type === "abonnement") {
+      if (!selectedClient.subscription) {
+        payload.last_payment_at = now.toISOString();
+        payload.next_payment_at = nextPayment.toISOString();
+        payload.payment_status = "a_jour";
+      }
+    }
+
     if (selectedClient.subscription) {
-      await supabase.from("client_subscriptions" as any).update(payload as any).eq("id", selectedClient.subscription.id);
+      await supabase.from("client_subscriptions" as any).update(payload).eq("id", selectedClient.subscription.id);
     } else {
-      await supabase.from("client_subscriptions" as any).insert(payload as any);
+      await supabase.from("client_subscriptions" as any).insert(payload);
     }
     toast("Contrat client mis à jour ✓");
     setEditingSub(false);
@@ -257,7 +291,7 @@ const AdminClientsTab = ({ leads, bookings, products, subscriptions, fetchAll }:
                   <p className="text-xs text-muted-foreground mb-2 font-medium">Niveau d'offre</p>
                   <div className="flex gap-2">
                     {OFFER_LEVELS.map(o => (
-                      <button key={o} onClick={() => setSubForm(prev => ({ ...prev, offer_level: o }))}
+                      <button key={o} onClick={() => handleOfferChange(o)}
                         className={`flex-1 text-sm font-semibold py-3 rounded-xl border-2 transition-all ${subForm.offer_level === o ? offerColor(o) : "border-border/30 text-muted-foreground hover:border-border"}`}>
                         {o}
                       </button>
