@@ -23,6 +23,7 @@ export type Database = {
           nom: string
           prenom: string
           secteur: string
+          status: string
           telephone: string | null
         }
         Insert: {
@@ -33,6 +34,7 @@ export type Database = {
           nom: string
           prenom: string
           secteur: string
+          status?: string
           telephone?: string | null
         }
         Update: {
@@ -43,6 +45,7 @@ export type Database = {
           nom?: string
           prenom?: string
           secteur?: string
+          status?: string
           telephone?: string | null
         }
         Relationships: []
@@ -121,6 +124,73 @@ export type Database = {
           taches_repetitives?: string[] | null
         }
         Relationships: []
+      }
+      follow_ups: {
+        Row: {
+          created_at: string
+          id: string
+          lead_id: string
+          message: string | null
+          scheduled_at: string
+          status: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lead_id: string
+          message?: string | null
+          scheduled_at: string
+          status?: string
+          type?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lead_id?: string
+          message?: string | null
+          scheduled_at?: string
+          status?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follow_ups_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "audit_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_notes: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          lead_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          lead_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_notes_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "audit_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       product_requests: {
         Row: {
