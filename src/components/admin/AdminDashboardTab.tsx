@@ -9,6 +9,7 @@ interface AdminDashboardTabProps {
   products: any[];
   diagnostics: any[];
   subscriptions?: any[];
+  payments?: any[];
 }
 
 const COLORS = {
