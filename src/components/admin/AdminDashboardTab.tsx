@@ -95,6 +95,12 @@ const AdminDashboardTab = ({ leads, bookings, products, diagnostics, subscriptio
   const todayLeads = leads.filter((l: any) => new Date(l.created_at).toDateString() === new Date().toDateString()).length;
   const PIE_COLORS = [COLORS.primary, COLORS.visibility, COLORS.conversion, "#3b82f6", COLORS.muted, "#ec4899", "#8b5cf6", "#06b6d4"];
 
+  const totalMRR = subscriptions
+    .filter((s: any) => s.payment_type === "abonnement" && s.payment_status !== "suspendu")
+    .reduce((acc: number, s: any) => acc + (Number(s.monthly_amount) || 0), 0);
+  const hostingCount = subscriptions.filter((s: any) => s.hosting_included).length;
+  const paymentAlerts = subscriptions.filter((s: any) => s.payment_status === "retard" || s.payment_status === "impaye").length;
+
   const typeIcon = (t: string) => t === "email" ? <Mail className="size-3.5" /> : t === "call" ? <Phone className="size-3.5" /> : <MessageSquare className="size-3.5" />;
 
   const isOverdue = (date: string) => new Date(date) < new Date();
