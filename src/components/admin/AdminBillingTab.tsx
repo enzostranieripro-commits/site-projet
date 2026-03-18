@@ -369,10 +369,6 @@ const AdminBillingTab = ({ leads, fetchAll }: Props) => {
     setGenerating(null);
   };
 
-  const handleSendByEmail = (invoice: Invoice) => {
-    const to = invoice.client_email || "";
-    window.open(`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}`, "_blank");
-  };
 
   const filtered = invoices.filter(inv => {
     if (filterType !== "all" && inv.type !== filterType) return false;
