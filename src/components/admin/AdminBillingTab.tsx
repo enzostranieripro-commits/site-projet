@@ -352,22 +352,15 @@ const AdminBillingTab = ({ leads, fetchAll }: Props) => {
 
       if (response.error) throw new Error(response.error.message);
 
-      // Response contains base64 PDF
       const { pdf_base64 } = response.data;
-      const byteChars = atob(pdf_base64);
-      const byteNumbers = new Array(byteChars.length);
-      for (let i = 0; i < byteChars.length; i++) {
-        byteNumbers[i] = byteChars.charCodeAt(i);
+      // Decode base64 HTML and open in new tab for print
+      const html = atob(pdf_base64);
+      const printWindow = window.open("", "_blank");
+      if (printWindow) {
+        printWindow.document.write(html);
+        printWindow.document.close();
+        setTimeout(() => printWindow.print(), 500);
       }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${invoice.number}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
 
       toast.success("PDF téléchargé");
     } catch (e: any) {
