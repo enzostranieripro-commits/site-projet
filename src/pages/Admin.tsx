@@ -8,6 +8,7 @@ import AdminDashboardTab from "@/components/admin/AdminDashboardTab";
 import AdminLeadsTab from "@/components/admin/AdminLeadsTab";
 import AdminClientsTab from "@/components/admin/AdminClientsTab";
 import AdminHostingTab from "@/components/admin/AdminHostingTab";
+import AdminSettingsTab from "@/components/admin/AdminSettingsTab";
 
 type Tab = "dashboard" | "leads" | "clients" | "hosting" | "bookings" | "offers" | "diagnostics" | "settings";
 
