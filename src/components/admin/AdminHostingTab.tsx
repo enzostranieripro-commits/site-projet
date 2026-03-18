@@ -31,7 +31,7 @@ const OFFER_COLORS: Record<string, string> = {
 const PIE_COLORS = ["hsl(158, 60%, 48%)", "hsl(265, 89%, 60%)", "hsl(35, 85%, 56%)", "hsl(215, 20%, 55%)"];
 const STATUS_PIE_COLORS = ["hsl(158, 60%, 48%)", "hsl(35, 85%, 56%)", "hsl(0, 84%, 60%)", "hsl(215, 20%, 55%)"];
 
-const AdminHostingTab = ({ subscriptions, leads, fetchAll }: AdminHostingTabProps) => {
+const AdminHostingTab = ({ subscriptions, leads, payments = [], fetchAll }: AdminHostingTabProps) => {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [selectedSub, setSelectedSub] = useState<any | null>(null);
