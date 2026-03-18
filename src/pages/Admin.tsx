@@ -39,6 +39,7 @@ const SIDEBAR_SECTIONS = [
     label: "Exploitation",
     items: [
       { id: "hosting" as Tab, label: "Hébergement & Abo.", icon: Server },
+      { id: "projects" as Tab, label: "Projets / Livrables", icon: FolderKanban },
       { id: "offers" as Tab, label: "Demandes Produits", icon: Package },
       { id: "diagnostics" as Tab, label: "Diagnostics", icon: BarChart3 },
     ],
