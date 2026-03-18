@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Wifi, WifiOff, Trash2, BarChart3, Users, Calendar, Package, Settings, LayoutDashboard, LogOut, Briefcase } from "lucide-react";
+import { Wifi, WifiOff, Trash2, BarChart3, Users, Calendar, Package, Settings, LayoutDashboard, LogOut, Briefcase, Server } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import AdminDashboardTab from "@/components/admin/AdminDashboardTab";
 import AdminLeadsTab from "@/components/admin/AdminLeadsTab";
 import AdminClientsTab from "@/components/admin/AdminClientsTab";
+import AdminHostingTab from "@/components/admin/AdminHostingTab";
 
-type Tab = "dashboard" | "leads" | "clients" | "bookings" | "offers" | "diagnostics" | "settings";
+type Tab = "dashboard" | "leads" | "clients" | "hosting" | "bookings" | "offers" | "diagnostics" | "settings";
 
 const Admin = () => {
   const { signOut } = useAuth();
@@ -17,19 +18,22 @@ const Admin = () => {
   const [bookings, setBookings] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [diagnostics, setDiagnostics] = useState<any[]>([]);
+  const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [connected, setConnected] = useState(true);
 
   const fetchAll = async () => {
-    const [l, b, p, d] = await Promise.all([
+    const [l, b, p, d, s] = await Promise.all([
       supabase.from("audit_requests" as any).select("*").order("created_at", { ascending: false }),
       supabase.from("bookings" as any).select("*").order("created_at", { ascending: false }),
       supabase.from("product_requests" as any).select("*").order("created_at", { ascending: false }),
       supabase.from("diagnostics" as any).select("*").order("created_at", { ascending: false }),
+      supabase.from("client_subscriptions" as any).select("*").order("created_at", { ascending: false }),
     ]);
     if (l.data) setLeads(l.data as any[]);
     if (b.data) setBookings(b.data as any[]);
     if (p.data) setProducts(p.data as any[]);
     if (d.data) setDiagnostics(d.data as any[]);
+    if (s.data) setSubscriptions(s.data as any[]);
   };
 
   useEffect(() => { fetchAll(); }, []);
@@ -40,6 +44,7 @@ const Admin = () => {
       .on("postgres_changes", { event: "*", schema: "public", table: "bookings" }, () => { fetchAll(); toast("Nouveau RDV !"); })
       .on("postgres_changes", { event: "*", schema: "public", table: "product_requests" }, () => { fetchAll(); toast("Nouvelle demande produit !"); })
       .on("postgres_changes", { event: "*", schema: "public", table: "diagnostics" }, () => { fetchAll(); })
+      .on("postgres_changes", { event: "*", schema: "public", table: "client_subscriptions" }, () => { fetchAll(); })
       .on("postgres_changes", { event: "*", schema: "public", table: "lead_notes" }, () => { })
       .on("postgres_changes", { event: "*", schema: "public", table: "follow_ups" }, () => { })
       .subscribe((status) => setConnected(status === "SUBSCRIBED"));
@@ -57,13 +62,15 @@ const Admin = () => {
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "leads", label: "Leads CRM", icon: Users },
     { id: "clients", label: "Clients", icon: Briefcase },
+    { id: "hosting", label: "Hébergement", icon: Server },
     { id: "bookings", label: "Rendez-vous", icon: Calendar },
     { id: "offers", label: "Offres", icon: Package },
     { id: "diagnostics", label: "Diagnostics", icon: BarChart3 },
     { id: "settings", label: "Paramètres", icon: Settings },
   ];
 
-  const pendingFollowUps = 0; // Could query but keep simple for now
+  // Alert badge for hosting
+  const hostingAlerts = subscriptions.filter((s: any) => s.payment_status === "retard" || s.payment_status === "impaye").length;
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -77,7 +84,13 @@ const Admin = () => {
           {tabs.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all ${tab === t.id ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}>
-              <t.icon className="size-4" />{t.label}
+              <t.icon className="size-4" />
+              {t.label}
+              {t.id === "hosting" && hostingAlerts > 0 && (
+                <span className="ml-auto bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
+                  {hostingAlerts}
+                </span>
+              )}
             </button>
           ))}
         </nav>
@@ -90,7 +103,7 @@ const Admin = () => {
       {/* Content */}
       <div className="flex-1 p-8 overflow-y-auto">
         {tab === "dashboard" && (
-          <AdminDashboardTab leads={leads} bookings={bookings} products={products} diagnostics={diagnostics} />
+          <AdminDashboardTab leads={leads} bookings={bookings} products={products} diagnostics={diagnostics} subscriptions={subscriptions} />
         )}
 
         {tab === "leads" && (
@@ -98,7 +111,11 @@ const Admin = () => {
         )}
 
         {tab === "clients" && (
-          <AdminClientsTab leads={leads} bookings={bookings} products={products} />
+          <AdminClientsTab leads={leads} bookings={bookings} products={products} subscriptions={subscriptions} fetchAll={fetchAll} />
+        )}
+
+        {tab === "hosting" && (
+          <AdminHostingTab subscriptions={subscriptions} leads={leads} fetchAll={fetchAll} />
         )}
 
         {tab === "bookings" && (

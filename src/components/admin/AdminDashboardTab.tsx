@@ -8,6 +8,7 @@ interface AdminDashboardTabProps {
   bookings: any[];
   products: any[];
   diagnostics: any[];
+  subscriptions?: any[];
 }
 
 const COLORS = {
@@ -28,7 +29,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 const FUNNEL_COLORS = ["#3b82f6", "#f59e0b", COLORS.primary, COLORS.visibility];
 
-const AdminDashboardTab = ({ leads, bookings, products, diagnostics }: AdminDashboardTabProps) => {
+const AdminDashboardTab = ({ leads, bookings, products, diagnostics, subscriptions = [] }: AdminDashboardTabProps) => {
   const [followUps, setFollowUps] = useState<any[]>([]);
 
   useEffect(() => {
@@ -94,6 +95,12 @@ const AdminDashboardTab = ({ leads, bookings, products, diagnostics }: AdminDash
   const todayLeads = leads.filter((l: any) => new Date(l.created_at).toDateString() === new Date().toDateString()).length;
   const PIE_COLORS = [COLORS.primary, COLORS.visibility, COLORS.conversion, "#3b82f6", COLORS.muted, "#ec4899", "#8b5cf6", "#06b6d4"];
 
+  const totalMRR = subscriptions
+    .filter((s: any) => s.payment_type === "abonnement" && s.payment_status !== "suspendu")
+    .reduce((acc: number, s: any) => acc + (Number(s.monthly_amount) || 0), 0);
+  const hostingCount = subscriptions.filter((s: any) => s.hosting_included).length;
+  const paymentAlerts = subscriptions.filter((s: any) => s.payment_status === "retard" || s.payment_status === "impaye").length;
+
   const typeIcon = (t: string) => t === "email" ? <Mail className="size-3.5" /> : t === "call" ? <Phone className="size-3.5" /> : <MessageSquare className="size-3.5" />;
 
   const isOverdue = (date: string) => new Date(date) < new Date();
@@ -108,13 +115,15 @@ const AdminDashboardTab = ({ leads, bookings, products, diagnostics }: AdminDash
       </p>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-7 gap-4 mb-8">
         {[
           { label: "Total Leads", value: leads.length, color: "text-primary" },
-          { label: "Pipeline actif", value: leads.filter((l: any) => !["converti", "perdu"].includes(l.status || "nouveau")).length, color: "text-blue-400" },
           { label: "Taux conversion", value: `${convRate}%`, color: "text-conversion" },
           { label: "RDV confirmés", value: confirmedBookings, color: "text-visibility" },
-          { label: "Relances à faire", value: followUps.filter((f: any) => isOverdue(f.scheduled_at) || isToday(f.scheduled_at)).length, color: "text-destructive" },
+          { label: "MRR", value: `${totalMRR.toLocaleString("fr-FR")}€`, color: "text-primary" },
+          { label: "Hébergés", value: hostingCount, color: "text-visibility" },
+          { label: "Relances", value: followUps.filter((f: any) => isOverdue(f.scheduled_at) || isToday(f.scheduled_at)).length, color: "text-destructive" },
+          { label: "Alertes paiement", value: paymentAlerts, color: paymentAlerts > 0 ? "text-destructive" : "text-muted-foreground" },
         ].map(k => (
           <div key={k.label} className="card-surface p-4">
             <p className="text-xs text-muted-foreground">{k.label}</p>
