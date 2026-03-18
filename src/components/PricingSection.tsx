@@ -6,13 +6,13 @@ import { useAuditModal } from "@/contexts/AuditModalContext";
 import SectionHeader from "./SectionHeader";
 
 const offersData = [
-  { name: "Visibilité", tagline: "Landing page", icon: Globe, color: "visibility", monthly: 59, users: 18,
+  { name: "Visibilité", tagline: "Landing page", icon: Globe, color: "visibility", monthly: 59, oneTime: 1200, users: 18,
     includes: ["Page unique optimisée SEO", "Formulaire de contact", "Design responsive", "Hébergement inclus", "Certificat SSL", "Support email"],
     options: [{ name: "Google Calendar", setup: 49, monthly: 9 }, { name: "Widget WhatsApp", setup: 29, monthly: 5 }, { name: "Analytics", setup: 39, monthly: 9 }, { name: "Blog SEO", setup: 99, monthly: 19 }] },
-  { name: "Autorité", tagline: "Site vitrine", icon: Layers, color: "authority", monthly: 119, users: 22,
+  { name: "Autorité", tagline: "Site vitrine", icon: Layers, color: "authority", monthly: 119, oneTime: 2400, users: 22,
     includes: ["Jusqu'à 5 pages", "Blog intégré", "Google My Business", "Hébergement inclus", "Certificat SSL", "Support prioritaire"],
     options: [{ name: "CRM leads", setup: 99, monthly: 19 }, { name: "Prise de RDV", setup: 79, monthly: 15 }, { name: "Avis automatisés", setup: 59, monthly: 12 }, { name: "Blog + rédaction SEO", setup: 149, monthly: 29 }] },
-  { name: "Conversion", tagline: "E-commerce", icon: ShoppingCart, color: "conversion", monthly: 199, users: 7,
+  { name: "Conversion", tagline: "E-commerce", icon: ShoppingCart, color: "conversion", monthly: 199, oneTime: 3400, users: 7,
     includes: ["Boutique en ligne", "Paiement sécurisé", "Gestion des stocks", "Hébergement inclus", "Certificat SSL", "Support dédié"],
     options: [{ name: "Codes promo", setup: 49, monthly: 9 }, { name: "Abonnements récurrents", setup: 99, monthly: 19 }, { name: "Analytics avancé", setup: 79, monthly: 15 }, { name: "SMS auto", setup: 69, monthly: 12 }] },
 ];
@@ -37,7 +37,8 @@ const PricingSection = () => {
   const optionsSetup = offer.options.reduce((s, o, i) => s + (selectedOptions[i] ? o.setup : 0), 0);
   const baseMonthly = offer.monthly + optionsMonthly;
 
-  const totalDisplay = selectedFormat === 0 ? `${baseMonthly}€/mois` : selectedFormat === 1 ? `${Math.round(baseMonthly * 10)}€/an` : `${baseMonthly * 12 + optionsSetup}€ unique`;
+  const oneTimeTotal = offer.oneTime + optionsSetup;
+  const totalDisplay = selectedFormat === 0 ? `${baseMonthly}€/mois` : selectedFormat === 1 ? `${Math.round(baseMonthly * 10)}€/an` : `${oneTimeTotal.toLocaleString("fr-FR")}€`;
 
   const toggleOption = (i: number) => { const n = [...selectedOptions]; n[i] = !n[i]; setSelectedOptions(n); };
 
@@ -62,9 +63,13 @@ const PricingSection = () => {
                   <div className={`h-1 rounded-full mb-4 ${o.color === "visibility" ? "bg-visibility" : o.color === "authority" ? "bg-primary" : "bg-conversion"}`} />
                   <o.icon className={`size-6 mb-2 ${o.color === "visibility" ? "text-visibility" : o.color === "authority" ? "text-primary" : "text-conversion"}`} />
                   <h3 className="font-bold text-lg">{o.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-2">{o.tagline}</p>
-                  <p className="text-2xl font-extrabold">{o.monthly}€<span className="text-sm font-normal text-muted-foreground">/mois</span></p>
-                  <p className="text-xs text-muted-foreground mt-1">{o.users} clients actifs</p>
+                  <p className="text-sm text-muted-foreground mb-3">{o.tagline}</p>
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">À partir de</p>
+                    <p className="text-2xl font-extrabold">{o.monthly}€<span className="text-sm font-normal text-muted-foreground">/mois TTC</span></p>
+                    <p className="text-sm font-semibold text-muted-foreground">ou {o.oneTime.toLocaleString("fr-FR")}€ <span className="text-xs font-normal">achat unique TTC</span></p>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">{o.users} clients actifs</p>
                 </button>
               ))}
             </motion.div>
@@ -119,9 +124,13 @@ const PricingSection = () => {
               </div>
               <div className="bg-secondary/50 rounded-xl p-6 mb-6">
                 <p className="text-sm text-muted-foreground mb-2">Récapitulatif</p>
-                <p className="text-sm">Offre {offer.name} — {offer.monthly}€/mois</p>
+                <p className="text-sm">Offre {offer.name} — à partir de {offer.monthly}€/mois TTC</p>
+                <p className="text-sm text-muted-foreground">ou à partir de {offer.oneTime.toLocaleString("fr-FR")}€ achat unique TTC</p>
                 {offer.options.map((o, i) => selectedOptions[i] && <p key={o.name} className="text-sm text-muted-foreground">+ {o.name} — {o.monthly}€/mois</p>)}
-                <div className="border-t border-border mt-4 pt-4"><p className="text-2xl font-extrabold">{totalDisplay}</p></div>
+                <div className="border-t border-border mt-4 pt-4">
+                  <p className="text-xs text-muted-foreground mb-1">À partir de</p>
+                  <p className="text-2xl font-extrabold">{totalDisplay} <span className="text-sm font-normal text-muted-foreground">TTC</span></p>
+                </div>
               </div>
               <div className="flex justify-between">
                 <Button variant="outline" onClick={() => setStep(2)}><ArrowLeft className="size-4 mr-2" />Retour</Button>
