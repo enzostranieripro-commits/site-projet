@@ -6,13 +6,13 @@ import { useAuditModal } from "@/contexts/AuditModalContext";
 import SectionHeader from "./SectionHeader";
 
 const offersData = [
-  { name: "Visibilité", tagline: "Landing page", icon: Globe, color: "visibility", monthly: 59, users: 18,
+  { name: "Visibilité", tagline: "Landing page", icon: Globe, color: "visibility", monthly: 59, oneTime: 1200, users: 18,
     includes: ["Page unique optimisée SEO", "Formulaire de contact", "Design responsive", "Hébergement inclus", "Certificat SSL", "Support email"],
     options: [{ name: "Google Calendar", setup: 49, monthly: 9 }, { name: "Widget WhatsApp", setup: 29, monthly: 5 }, { name: "Analytics", setup: 39, monthly: 9 }, { name: "Blog SEO", setup: 99, monthly: 19 }] },
-  { name: "Autorité", tagline: "Site vitrine", icon: Layers, color: "authority", monthly: 119, users: 22,
+  { name: "Autorité", tagline: "Site vitrine", icon: Layers, color: "authority", monthly: 119, oneTime: 2400, users: 22,
     includes: ["Jusqu'à 5 pages", "Blog intégré", "Google My Business", "Hébergement inclus", "Certificat SSL", "Support prioritaire"],
     options: [{ name: "CRM leads", setup: 99, monthly: 19 }, { name: "Prise de RDV", setup: 79, monthly: 15 }, { name: "Avis automatisés", setup: 59, monthly: 12 }, { name: "Blog + rédaction SEO", setup: 149, monthly: 29 }] },
-  { name: "Conversion", tagline: "E-commerce", icon: ShoppingCart, color: "conversion", monthly: 199, users: 7,
+  { name: "Conversion", tagline: "E-commerce", icon: ShoppingCart, color: "conversion", monthly: 199, oneTime: 3400, users: 7,
     includes: ["Boutique en ligne", "Paiement sécurisé", "Gestion des stocks", "Hébergement inclus", "Certificat SSL", "Support dédié"],
     options: [{ name: "Codes promo", setup: 49, monthly: 9 }, { name: "Abonnements récurrents", setup: 99, monthly: 19 }, { name: "Analytics avancé", setup: 79, monthly: 15 }, { name: "SMS auto", setup: 69, monthly: 12 }] },
 ];
