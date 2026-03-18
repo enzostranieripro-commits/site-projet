@@ -1,56 +1,39 @@
-import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import MetiersTicker from "@/components/MetiersTicker";
 import ProblemSection from "@/components/ProblemSection";
 import SolutionsSection from "@/components/SolutionsSection";
 import ServicesSection from "@/components/ServicesSection";
-import DiagnosticSection from "@/components/DiagnosticSection";
-import PricingSection from "@/components/PricingSection";
 import MethodSection from "@/components/MethodSection";
+import PricingSection from "@/components/PricingSection";
+import DiagnosticSection from "@/components/DiagnosticSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import FAQSection from "@/components/FAQSection";
 import FinalCTA from "@/components/FinalCTA";
 import SiteFooter from "@/components/SiteFooter";
 import AuditFormModal from "@/components/AuditFormModal";
 import ChatbotBubble from "@/components/ChatbotBubble";
+import MetiersTicker2 from "@/components/MetiersTicker";
 
-const Index = () => {
-  const [auditOpen, setAuditOpen] = useState(false);
-  const [productType, setProductType] = useState<string | null>(null);
-
-  const openAudit = () => {
-    setProductType(null);
-    setAuditOpen(true);
-  };
-
-  const openProductForm = (product: string) => {
-    setProductType(product);
-    setAuditOpen(true);
-  };
-
-  return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Navbar onOpenAuditForm={openAudit} />
-      <Hero onOpenAuditForm={openAudit} />
-      <MetiersTicker />
-      <ProblemSection />
-      <SolutionsSection />
-      <ServicesSection onOpenProductForm={openProductForm} />
-      <DiagnosticSection onOpenAuditForm={openAudit} />
-      <PricingSection onOpenAuditForm={openAudit} />
-      <MethodSection />
-      <TestimonialsSection />
-      <div id="faq">
-        <FAQSection />
-      </div>
-      <FinalCTA onOpenAuditForm={openAudit} />
-      <MetiersTicker />
-      <SiteFooter onOpenAuditForm={openAudit} />
-      <AuditFormModal open={auditOpen} onClose={() => setAuditOpen(false)} productType={productType} />
-      <ChatbotBubble />
-    </div>
-  );
-};
+const Index = () => (
+  <div className="min-h-screen bg-background text-foreground">
+    <Navbar />
+    <Hero />
+    <MetiersTicker />
+    <ProblemSection />
+    <SolutionsSection />
+    <ServicesSection />
+    <MethodSection />
+    <PricingSection />
+    <DiagnosticSection />
+    <TestimonialsSection />
+    <FAQSection />
+    <FinalCTA />
+    <MetiersTicker />
+    <SiteFooter />
+    <AuditFormModal />
+    <ChatbotBubble />
+  </div>
+);
 
 export default Index;
