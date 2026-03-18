@@ -56,6 +56,7 @@ const Admin = () => {
   const tabs: { id: Tab; label: string; icon: any }[] = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "leads", label: "Leads CRM", icon: Users },
+    { id: "clients", label: "Clients", icon: Briefcase },
     { id: "bookings", label: "Rendez-vous", icon: Calendar },
     { id: "offers", label: "Offres", icon: Package },
     { id: "diagnostics", label: "Diagnostics", icon: BarChart3 },
