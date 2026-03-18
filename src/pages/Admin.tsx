@@ -61,6 +61,8 @@ const Admin = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [diagnostics, setDiagnostics] = useState<any[]>([]);
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
+  const [payments, setPayments] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
   const [connected, setConnected] = useState(true);
 
   const fetchAll = async () => {
