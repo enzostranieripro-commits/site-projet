@@ -1,38 +1,42 @@
-import { Button } from "@/components/ui/button";
+import { useAuditModal } from "@/contexts/AuditModalContext";
 
-interface SiteFooterProps {
-  onOpenAuditForm: () => void;
-}
+const SiteFooter = () => {
+  const { open } = useAuditModal();
 
-const SiteFooter = ({ onOpenAuditForm }: SiteFooterProps) => (
-  <footer className="relative border-t border-border/50 py-16 px-4">
-    <div className="divider-glow absolute top-0 left-0 right-0" />
-    <div className="max-w-4xl mx-auto text-center">
-      <h2 className="text-2xl md:text-3xl font-display font-black mb-4 tracking-tight">
-        Prêt à <span className="text-gradient">accélérer</span> votre croissance ?
-      </h2>
-      <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
-        Réservez un appel gratuit et découvrez comment l'IA peut transformer votre entreprise en Aveyron et Occitanie.
-      </p>
-      <Button
-        size="lg"
-        className="group bg-primary text-primary-foreground hover:brightness-110 px-10 py-6 rounded-xl mb-10 transition-all duration-300"
-        onClick={onOpenAuditForm}
-      >
-        Prendre rendez-vous
-      </Button>
-
-      <nav className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground mb-6">
-        {["Accueil", "Expertise", "Services & Prix", "Réalisations", "À propos", "FAQ"].map((link) => (
-          <a key={link} href="#" className="hover:text-foreground transition-colors duration-300">{link}</a>
-        ))}
-      </nav>
-
-      <p className="text-xs text-muted-foreground">
-        © 2025 Studio Nova — Agence digitale IA en Aveyron, Occitanie. Tous droits réservés.
-      </p>
-    </div>
-  </footer>
-);
+  return (
+    <footer className="border-t border-border/30 py-16 px-4 md:px-8">
+      <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-8">
+        <div>
+          <span className="font-display text-xl font-extrabold">Studio<span className="text-primary">Nova</span></span>
+          <p className="text-sm text-muted-foreground mt-3">Agence web pour artisans, commerçants et indépendants en Aveyron & Occitanie.</p>
+        </div>
+        <div>
+          <h4 className="font-semibold text-sm mb-4">Offres</h4>
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            <li><button onClick={() => open("Visibilité")} className="hover:text-foreground transition-colors">Visibilité — 59€/mois</button></li>
+            <li><button onClick={() => open("Autorité")} className="hover:text-foreground transition-colors">Autorité — 119€/mois</button></li>
+            <li><button onClick={() => open("Conversion")} className="hover:text-foreground transition-colors">Conversion — 199€/mois</button></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-semibold text-sm mb-4">Zones d'intervention</h4>
+          <ul className="space-y-2 text-sm text-muted-foreground"><li>Rodez & Aveyron</li><li>Occitanie</li><li>France entière</li></ul>
+        </div>
+        <div>
+          <h4 className="font-semibold text-sm mb-4">Contact</h4>
+          <ul className="space-y-2 text-sm text-muted-foreground"><li>contact@studionova.fr</li><li>05 65 00 00 00</li><li>Rodez, Aveyron (12)</li><li>Lun-Ven 9h-18h</li></ul>
+        </div>
+      </div>
+      <div className="max-w-6xl mx-auto mt-12 pt-6 border-t border-border/30 flex flex-col md:flex-row justify-between items-center text-xs text-muted-foreground">
+        <p>© 2024 Studio Nova. Tous droits réservés.</p>
+        <div className="flex gap-4 mt-2 md:mt-0">
+          <a href="#" className="hover:text-foreground">Mentions légales</a>
+          <a href="#" className="hover:text-foreground">Politique de confidentialité</a>
+          <a href="#" className="hover:text-foreground">CGV</a>
+        </div>
+      </div>
+    </footer>
+  );
+};
 
 export default SiteFooter;

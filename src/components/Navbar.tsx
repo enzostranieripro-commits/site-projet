@@ -1,83 +1,64 @@
 import { useState, useEffect } from "react";
-import { Menu, X, ArrowRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-interface NavbarProps {
-  onOpenAuditForm: () => void;
-}
+import { useAuditModal } from "@/contexts/AuditModalContext";
+import { Link } from "react-router-dom";
 
 const links = [
-  { label: "Accueil", href: "#" },
   { label: "Services", href: "#services" },
-  { label: "Tarifs", href: "#pricing" },
-  { label: "Diagnostic", href: "#diagnostic" },
+  { label: "Méthode", href: "#methode" },
+  { label: "Tarifs", href: "#tarifs" },
   { label: "FAQ", href: "#faq" },
 ];
 
-const Navbar = ({ onOpenAuditForm }: NavbarProps) => {
-  const [open, setOpen] = useState(false);
+const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const { open } = useAuditModal();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
-        scrolled
-          ? "glass-strong border-b border-border/30 py-2 shadow-lg shadow-background/50"
-          : "bg-transparent border-b border-transparent py-4"
-      }`}
-    >
-      <div className="max-w-6xl mx-auto flex items-center justify-between px-4">
-        <a href="#" className="text-lg font-display font-black tracking-tight hover:text-primary transition-colors duration-300">
-          Studio Nova
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "glass-strong py-3" : "py-5"}`}>
+      <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
+        <a href="#" className="flex items-center gap-2">
+          <span className="font-display text-xl font-extrabold tracking-tight text-foreground">
+            Studio<span className="text-primary">Nova</span>
+          </span>
+          <span className="w-2 h-2 rounded-full bg-primary animate-pulse-dot" />
         </a>
 
-        <nav className="hidden md:flex items-center gap-1">
+        <div className="hidden md:flex items-center gap-8">
           {links.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              className="relative px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-300 rounded-lg hover:bg-secondary/50"
-            >
-              {l.label}
-            </a>
+            <a key={l.href} href={l.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{l.label}</a>
           ))}
-        </nav>
-
-        <div className="hidden md:block">
-          <Button
-            size="sm"
-            className="group bg-primary text-primary-foreground hover:brightness-110 rounded-lg transition-all duration-300"
-            onClick={onOpenAuditForm}
-          >
-            Audit gratuit
-            <ArrowRight className="ml-1 size-3 transition-transform group-hover:translate-x-0.5" />
-          </Button>
+          <Link to="/admin" className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors">Admin</Link>
+          <Button size="sm" className="bg-primary text-primary-foreground hover:brightness-110 rounded-xl" onClick={() => open()}>Audit gratuit</Button>
         </div>
 
-        <button className="md:hidden text-foreground" onClick={() => setOpen(!open)}>
-          {open ? <X className="size-5" /> : <Menu className="size-5" />}
+        <button className="md:hidden text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
+          {mobileOpen ? <X className="size-6" /> : <Menu className="size-6" />}
         </button>
       </div>
 
-      {open && (
-        <div className="md:hidden glass-strong border-t border-border/30 px-4 py-4 space-y-3">
-          {links.map((l) => (
-            <a key={l.label} href={l.href} onClick={() => setOpen(false)} className="block text-sm text-muted-foreground hover:text-foreground py-1">
-              {l.label}
-            </a>
-          ))}
-          <Button size="sm" className="w-full bg-primary text-primary-foreground rounded-lg mt-2" onClick={() => { setOpen(false); onOpenAuditForm(); }}>
-            Audit gratuit
-          </Button>
-        </div>
-      )}
-    </header>
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="md:hidden glass-strong overflow-hidden">
+            <div className="px-4 py-6 flex flex-col gap-4">
+              {links.map((l) => (
+                <a key={l.href} href={l.href} className="text-sm text-muted-foreground hover:text-foreground" onClick={() => setMobileOpen(false)}>{l.label}</a>
+              ))}
+              <Button className="bg-primary text-primary-foreground rounded-xl w-full" onClick={() => { setMobileOpen(false); open(); }}>Audit gratuit</Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </nav>
   );
 };
 

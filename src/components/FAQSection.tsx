@@ -2,26 +2,25 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import SectionHeader from "./SectionHeader";
 
 const faqs = [
-  { q: "L'audit est-il vraiment gratuit ?", a: "Oui, 100 % gratuit et sans engagement. On échange 30 minutes pour comprendre votre activité et vous donner un plan d'action concret." },
-  { q: "Combien de temps faut-il pour créer un site ?", a: "En moyenne, votre site est livré en 7 jours ouvrés. Chaque étape est validée avec vous avant de passer à la suivante." },
-  { q: "Je n'y connais rien en digital, est-ce un problème ?", a: "Pas du tout. On s'occupe de tout et on vous explique chaque étape simplement. Vous n'avez rien de technique à gérer." },
-  { q: "Est-ce adapté à mon secteur d'activité ?", a: "Nous travaillons avec des artisans, commerçants, agents immobiliers, restaurateurs et bien d'autres métiers en Aveyron et Occitanie." },
-  { q: "Puis-je payer en plusieurs fois ?", a: "Oui, nous proposons le paiement mensuel sur tous nos services pour faciliter votre investissement." },
+  { q: "Combien de temps faut-il pour créer mon site ?", a: "En moyenne, votre site est en ligne en 7 jours ouvrés." },
+  { q: "Est-ce que je suis propriétaire de mon site ?", a: "Absolument. Le site vous appartient à 100%. Vous pouvez le transférer ou le modifier." },
+  { q: "Ai-je besoin de compétences techniques ?", a: "Pas du tout. Nous nous occupons de tout : conception, développement, mise en ligne et maintenance." },
+  { q: "Puis-je modifier mon site après la livraison ?", a: "Oui, nous vous fournissons un accès simple. Pour les modifications complexes, notre équipe est là." },
+  { q: "L'abonnement est-il sans engagement ?", a: "Oui, l'offre mensuelle est sans engagement. L'offre annuelle vous fait économiser 2 mois." },
+  { q: "Intervenez-vous uniquement en Aveyron ?", a: "Non ! Nous travaillons dans toute l'Occitanie et la France entière. Tout se fait en ligne." },
+  { q: "Le référencement SEO est-il inclus ?", a: "Oui, toutes nos offres incluent une optimisation SEO de base." },
+  { q: "L'audit gratuit, c'est vraiment gratuit ?", a: "Oui, 100% gratuit et sans engagement. 20 minutes pour analyser votre situation." },
 ];
 
 const FAQSection = () => (
-  <section className="section-padding">
+  <section id="faq" className="section-padding">
     <div className="max-w-3xl mx-auto">
-      <SectionHeader
-        label="FAQ"
-        title="Questions"
-        highlight="fréquentes"
-      />
+      <SectionHeader label="FAQ" title="Questions" highlight="fréquentes" />
       <Accordion type="single" collapsible className="space-y-3">
-        {faqs.map((faq, i) => (
+        {faqs.map((f, i) => (
           <AccordionItem key={i} value={`faq-${i}`} className="card-surface px-6 border-none">
-            <AccordionTrigger className="text-sm font-medium hover:no-underline py-4">{faq.q}</AccordionTrigger>
-            <AccordionContent className="text-sm text-muted-foreground pb-4">{faq.a}</AccordionContent>
+            <AccordionTrigger className="text-left font-semibold text-sm hover:no-underline">{f.q}</AccordionTrigger>
+            <AccordionContent className="text-sm text-muted-foreground">{f.a}</AccordionContent>
           </AccordionItem>
         ))}
       </Accordion>

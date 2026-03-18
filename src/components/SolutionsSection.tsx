@@ -1,71 +1,26 @@
 import { motion } from "framer-motion";
-import { Globe, Megaphone, Zap } from "lucide-react";
+import { MapPin, TrendingUp, Zap } from "lucide-react";
 import SectionHeader from "./SectionHeader";
 
 const solutions = [
-  {
-    icon: Globe,
-    title: "Attirer des visiteurs grâce à un site internet optimisé",
-    desc: "Un site rapide, bien référencé sur Google et conçu avec un seul objectif : que chaque visiteur vous contacte.",
-    features: ["Optimisé pour Google", "Design pensé conversion", "Adapté mobile"],
-    stat: "×3",
-    statLabel: "plus de contacts en moyenne",
-  },
-  {
-    icon: Megaphone,
-    title: "Développer la visibilité grâce au contenu marketing",
-    desc: "Vidéos, visuels et textes créés avec l'IA, adaptés à votre image de marque. Publiez régulièrement sans y passer vos soirées.",
-    features: ["Photos & vidéos professionnelles", "Contenu adapté à votre marque", "Calendrier éditorial inclus"],
-    stat: "×2",
-    statLabel: "d'engagement en plus",
-  },
-  {
-    icon: Zap,
-    title: "Gérer les demandes grâce à l'automatisation",
-    desc: "Nous mettons en place des outils intelligents qui gèrent vos relances, vos rendez-vous et vos demandes — automatiquement, 24h/24.",
-    features: ["Relances automatiques", "Prise de rendez-vous en ligne", "Tri intelligent des demandes"],
-    stat: "+10h",
-    statLabel: "gagnées par semaine en moyenne",
-  },
+  { icon: MapPin, title: "Référencement local optimisé", result: '"plombier Rodez" → position 1 Google Maps', desc: "Apparaissez en premier quand vos clients cherchent vos services à proximité." },
+  { icon: TrendingUp, title: "Un site qui convertit", result: "Taux de conversion ×3", desc: "Design optimisé pour transformer chaque visiteur en demande de devis." },
+  { icon: Zap, title: "Des processus simplifiés", result: "5h/semaine économisées", desc: "Automatisez les rappels, la prise de RDV et les relances clients." },
 ];
 
 const SolutionsSection = () => (
   <section className="section-padding">
     <div className="max-w-6xl mx-auto">
-      <SectionHeader
-        label="NOS SOLUTIONS"
-        title="Des réponses concrètes pour"
-        highlight="chaque défi"
-        description="Pas de jargon technique, pas de promesses vagues. Des solutions claires, adaptées aux entreprises locales d'Aveyron et d'Occitanie."
-      />
-
+      <SectionHeader label="NOS SOLUTIONS" title="Ce que nous changeons pour" highlight="votre business" />
       <div className="grid md:grid-cols-3 gap-6">
         {solutions.map((s, i) => (
-          <motion.div
-            key={s.title}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="card-surface-hover p-6 flex flex-col"
-          >
-            <div className="size-12 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
-              <s.icon className="size-6 text-primary" />
+          <motion.div key={s.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="card-surface-hover p-6 border border-visibility/20">
+            <div className="w-12 h-12 rounded-xl bg-visibility/10 flex items-center justify-center mb-4">
+              <s.icon className="size-6 text-visibility" />
             </div>
-            <h3 className="text-lg font-semibold mb-3">{s.title}</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed mb-5">{s.desc}</p>
-            <ul className="space-y-2 mb-6 flex-1">
-              {s.features.map((f) => (
-                <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span className="size-1.5 rounded-full bg-primary" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <div className="border-t border-border pt-4 text-center">
-              <span className="text-3xl font-bold text-primary tabular-nums">{s.stat}</span>
-              <p className="text-xs text-muted-foreground mt-1">{s.statLabel}</p>
-            </div>
+            <h3 className="font-bold text-lg mb-1">{s.title}</h3>
+            <p className="text-sm font-semibold text-visibility mb-3">{s.result}</p>
+            <p className="text-sm text-muted-foreground">{s.desc}</p>
           </motion.div>
         ))}
       </div>
