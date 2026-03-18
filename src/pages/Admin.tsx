@@ -66,18 +66,22 @@ const Admin = () => {
   const [connected, setConnected] = useState(true);
 
   const fetchAll = async () => {
-    const [l, b, p, d, s] = await Promise.all([
+    const [l, b, p, d, s, ph, pr] = await Promise.all([
       supabase.from("audit_requests").select("*").order("created_at", { ascending: false }),
       supabase.from("bookings").select("*").order("created_at", { ascending: false }),
       supabase.from("product_requests").select("*").order("created_at", { ascending: false }),
       supabase.from("diagnostics").select("*").order("created_at", { ascending: false }),
       supabase.from("client_subscriptions").select("*").order("created_at", { ascending: false }),
+      supabase.from("payment_history").select("*").order("payment_date", { ascending: false }),
+      supabase.from("client_projects").select("*").order("created_at", { ascending: false }),
     ]);
     if (l.data) setLeads(l.data);
     if (b.data) setBookings(b.data);
     if (p.data) setProducts(p.data);
     if (d.data) setDiagnostics(d.data);
     if (s.data) setSubscriptions(s.data);
+    if (ph.data) setPayments(ph.data);
+    if (pr.data) setProjects(pr.data);
   };
 
   useEffect(() => { fetchAll(); }, []);
