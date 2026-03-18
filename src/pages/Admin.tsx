@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Wifi, WifiOff, Trash2, BarChart3, Users, Calendar, Package, Settings, LayoutDashboard, LogOut, Bell } from "lucide-react";
+import { Wifi, WifiOff, Trash2, BarChart3, Users, Calendar, Package, Settings, LayoutDashboard, LogOut, Briefcase } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import AdminDashboardTab from "@/components/admin/AdminDashboardTab";
 import AdminLeadsTab from "@/components/admin/AdminLeadsTab";
+import AdminClientsTab from "@/components/admin/AdminClientsTab";
 
-type Tab = "dashboard" | "leads" | "bookings" | "offers" | "diagnostics" | "settings";
+type Tab = "dashboard" | "leads" | "clients" | "bookings" | "offers" | "diagnostics" | "settings";
 
 const Admin = () => {
   const { signOut } = useAuth();
@@ -55,6 +56,7 @@ const Admin = () => {
   const tabs: { id: Tab; label: string; icon: any }[] = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "leads", label: "Leads CRM", icon: Users },
+    { id: "clients", label: "Clients", icon: Briefcase },
     { id: "bookings", label: "Rendez-vous", icon: Calendar },
     { id: "offers", label: "Offres", icon: Package },
     { id: "diagnostics", label: "Diagnostics", icon: BarChart3 },
@@ -93,6 +95,10 @@ const Admin = () => {
 
         {tab === "leads" && (
           <AdminLeadsTab leads={leads} fetchAll={fetchAll} />
+        )}
+
+        {tab === "clients" && (
+          <AdminClientsTab leads={leads} bookings={bookings} products={products} />
         )}
 
         {tab === "bookings" && (
