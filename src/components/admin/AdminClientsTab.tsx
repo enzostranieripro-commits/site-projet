@@ -58,8 +58,8 @@ const AdminClientsTab = ({ leads, bookings, products, subscriptions, fetchAll }:
   // Load pricing config
   useEffect(() => {
     const loadPricing = async () => {
-      const { data } = await supabase.from("admin_settings" as any).select("value").eq("key", "offer_pricing").single();
-      if (data) setOfferPricing(data.value as any);
+      const { data } = await supabase.from("admin_settings" as any).select("value").eq("key", "offer_pricing").single() as any;
+      if (data?.value) setOfferPricing(data.value as any);
     };
     loadPricing();
   }, []);
