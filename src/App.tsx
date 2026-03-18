@@ -7,7 +7,8 @@ import { AuditModalProvider } from "@/contexts/AuditModalContext";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
-
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
