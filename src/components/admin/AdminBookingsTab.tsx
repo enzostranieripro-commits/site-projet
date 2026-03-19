@@ -21,6 +21,7 @@ const AdminBookingsTab = ({ bookings, fetchAll }: Props) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
+  const [filterSecteur, setFilterSecteur] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -30,16 +31,19 @@ const AdminBookingsTab = ({ bookings, fetchAll }: Props) => {
     fetchAll();
   };
 
+  const secteurs = useMemo(() => [...new Set(bookings.map(b => b.secteur).filter(Boolean))].sort(), [bookings]);
+
   // Filtered bookings for list view
   const filteredBookings = useMemo(() => {
     return bookings.filter(b => {
       const matchSearch = !search || `${b.prenom} ${b.nom} ${b.email} ${b.secteur}`.toLowerCase().includes(search.toLowerCase());
       const matchStatus = !filterStatus || b.status === filterStatus;
+      const matchSecteur = !filterSecteur || b.secteur === filterSecteur;
       const matchDateFrom = !dateFrom || b.date >= dateFrom;
       const matchDateTo = !dateTo || b.date <= dateTo;
-      return matchSearch && matchStatus && matchDateFrom && matchDateTo;
+      return matchSearch && matchStatus && matchSecteur && matchDateFrom && matchDateTo;
     });
-  }, [bookings, search, filterStatus, dateFrom, dateTo]);
+  }, [bookings, search, filterStatus, filterSecteur, dateFrom, dateTo]);
 
   const pending = bookings.filter(b => b.status === "pending").length;
   const confirmed = bookings.filter(b => b.status === "confirmed").length;
