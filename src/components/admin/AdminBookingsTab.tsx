@@ -356,7 +356,8 @@ const AdminBookingsTab = ({ bookings, fetchAll }: Props) => {
               })}
             </tbody>
           </table>
-        </div>
+          </div>
+        </>
       )}
     </div>
   );
