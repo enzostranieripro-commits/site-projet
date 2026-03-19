@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from "recharts";
-import { Clock, Phone, Mail, MessageSquare, TrendingUp, Users, Calendar, CreditCard, AlertTriangle, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Clock, Phone, Mail, MessageSquare, TrendingUp, Users, Calendar, CreditCard, AlertTriangle, ArrowUpRight, ArrowDownRight, ExternalLink } from "lucide-react";
 
 interface AdminDashboardTabProps {
   leads: any[];
@@ -10,6 +10,7 @@ interface AdminDashboardTabProps {
   diagnostics: any[];
   subscriptions?: any[];
   payments?: any[];
+  onNavigate?: (tab: string) => void;
 }
 
 const COLORS = {
@@ -30,7 +31,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 const FUNNEL_COLORS = ["#3b82f6", "#f59e0b", COLORS.primary, COLORS.visibility];
 
-const AdminDashboardTab = ({ leads, bookings, products, diagnostics, subscriptions = [], payments = [] }: AdminDashboardTabProps) => {
+const AdminDashboardTab = ({ leads, bookings, products, diagnostics, subscriptions = [], payments = [], onNavigate }: AdminDashboardTabProps) => {
   const [followUps, setFollowUps] = useState<any[]>([]);
 
   useEffect(() => {
@@ -121,6 +122,8 @@ const AdminDashboardTab = ({ leads, bookings, products, diagnostics, subscriptio
       title: `Relance en retard — ${(f as any).audit_requests?.prenom} ${(f as any).audit_requests?.nom}`,
       sub: `Prévue le ${new Date(f.scheduled_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })} à ${new Date(f.scheduled_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`,
       id: f.id,
+      action: () => onNavigate?.("leads"),
+      actionLabel: "Voir le lead",
     })),
     ...newLeadsRecent.map((l: any) => ({
       type: "info" as const,
@@ -128,6 +131,8 @@ const AdminDashboardTab = ({ leads, bookings, products, diagnostics, subscriptio
       title: `Nouveau lead — ${l.prenom} ${l.nom}`,
       sub: `${l.secteur} • ${l.email}`,
       id: l.id,
+      action: () => onNavigate?.("leads"),
+      actionLabel: "Ouvrir le pipeline",
     })),
     ...todayFollowUps.map((f: any) => ({
       type: "warning" as const,
@@ -135,6 +140,8 @@ const AdminDashboardTab = ({ leads, bookings, products, diagnostics, subscriptio
       title: `Relance aujourd'hui — ${(f as any).audit_requests?.prenom} ${(f as any).audit_requests?.nom}`,
       sub: `À ${new Date(f.scheduled_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })} • ${f.type}`,
       id: f.id,
+      action: () => onNavigate?.("leads"),
+      actionLabel: "Voir le lead",
     })),
     ...pendingBookings.slice(0, 3).map((b: any) => ({
       type: "warning" as const,
@@ -142,6 +149,8 @@ const AdminDashboardTab = ({ leads, bookings, products, diagnostics, subscriptio
       title: `RDV en attente — ${b.prenom} ${b.nom}`,
       sub: `${b.date} à ${b.time}`,
       id: b.id,
+      action: () => onNavigate?.("bookings"),
+      actionLabel: "Voir les RDV",
     })),
   ];
 
@@ -166,7 +175,8 @@ const AdminDashboardTab = ({ leads, bookings, products, diagnostics, subscriptio
             {notifications.slice(0, 6).map((n) => {
               const s = notifStyles[n.type];
               return (
-                <div key={n.id} className={`${s.bg} border ${s.border} rounded-xl px-4 py-3 flex items-center gap-3 transition-all hover:scale-[1.01]`}>
+                <button key={n.id} onClick={n.action}
+                  className={`${s.bg} border ${s.border} rounded-xl px-4 py-3 flex items-center gap-3 transition-all hover:scale-[1.01] cursor-pointer text-left w-full group`}>
                   <div className={`w-9 h-9 rounded-lg ${s.iconBg} ${s.iconText} flex items-center justify-center flex-shrink-0`}>
                     {n.icon}
                   </div>
@@ -174,10 +184,15 @@ const AdminDashboardTab = ({ leads, bookings, products, diagnostics, subscriptio
                     <p className="text-sm font-medium truncate">{n.title}</p>
                     <p className="text-[11px] text-muted-foreground truncate">{n.sub}</p>
                   </div>
-                  <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${s.badge} flex-shrink-0`}>
-                    {n.type === "danger" ? "Urgent" : n.type === "warning" ? "À traiter" : "Nouveau"}
-                  </span>
-                </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${s.badge}`}>
+                      {n.type === "danger" ? "Urgent" : n.type === "warning" ? "À traiter" : "Nouveau"}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground/50 group-hover:text-foreground flex items-center gap-0.5 transition-colors">
+                      {n.actionLabel} <ExternalLink className="size-2.5" />
+                    </span>
+                  </div>
+                </button>
               );
             })}
           </div>
