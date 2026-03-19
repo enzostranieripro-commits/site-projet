@@ -26,6 +26,7 @@ interface AdminLeadsTabProps {
 const AdminLeadsTab = ({ leads, fetchAll }: AdminLeadsTabProps) => {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
+  const [filterSecteur, setFilterSecteur] = useState<string | null>(null);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [selectedLead, setSelectedLead] = useState<any | null>(null);
@@ -37,13 +38,16 @@ const AdminLeadsTab = ({ leads, fetchAll }: AdminLeadsTabProps) => {
   const [viewMode, setViewMode] = useState<"list" | "kanban">("kanban");
   const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null);
 
+  const secteurs = useMemo(() => [...new Set(leads.map((l: any) => l.secteur).filter(Boolean))].sort(), [leads]);
+
   const filteredLeads = leads.filter((l: any) => {
     const matchSearch = `${l.prenom} ${l.nom} ${l.email} ${l.secteur}`.toLowerCase().includes(search.toLowerCase());
     const matchStatus = !filterStatus || (l.status || "nouveau") === filterStatus;
+    const matchSecteur = !filterSecteur || l.secteur === filterSecteur;
     const leadDate = l.created_at?.slice(0, 10);
     const matchDateFrom = !dateFrom || leadDate >= dateFrom;
     const matchDateTo = !dateTo || leadDate <= dateTo;
-    return matchSearch && matchStatus && matchDateFrom && matchDateTo;
+    return matchSearch && matchStatus && matchSecteur && matchDateFrom && matchDateTo;
   });
 
   const kanbanColumns = useMemo(() => {
