@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from "recharts";
-import { Clock, Phone, Mail, MessageSquare, TrendingUp, Users, Calendar, CreditCard, AlertTriangle, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Clock, Phone, Mail, MessageSquare, TrendingUp, Users, Calendar, CreditCard, AlertTriangle, ArrowUpRight, ArrowDownRight, ExternalLink } from "lucide-react";
 
 interface AdminDashboardTabProps {
   leads: any[];
@@ -10,6 +10,7 @@ interface AdminDashboardTabProps {
   diagnostics: any[];
   subscriptions?: any[];
   payments?: any[];
+  onNavigate?: (tab: string) => void;
 }
 
 const COLORS = {
