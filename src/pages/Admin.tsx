@@ -17,8 +17,9 @@ import AdminSettingsTab from "@/components/admin/AdminSettingsTab";
 import AdminProjectsTab from "@/components/admin/AdminProjectsTab";
 import AdminFinanceTab from "@/components/admin/AdminFinanceTab";
 import AdminBillingTab from "@/components/admin/AdminBillingTab";
+import AdminInvoiceSettingsTab from "@/components/admin/AdminInvoiceSettingsTab";
 
-type Tab = "dashboard" | "leads" | "clients" | "hosting" | "bookings" | "offers" | "diagnostics" | "settings" | "projects" | "finance" | "billing";
+type Tab = "dashboard" | "leads" | "clients" | "hosting" | "bookings" | "offers" | "diagnostics" | "settings" | "projects" | "finance" | "billing" | "invoice_settings";
 
 const SIDEBAR_SECTIONS = [
   {
@@ -27,6 +28,7 @@ const SIDEBAR_SECTIONS = [
       { id: "dashboard" as Tab, label: "Dashboard", icon: LayoutDashboard },
       { id: "finance" as Tab, label: "Finances", icon: DollarSign },
       { id: "billing" as Tab, label: "Devis & Factures", icon: FileText },
+      { id: "invoice_settings" as Tab, label: "Réglages Devis", icon: Settings },
     ],
   },
   {
@@ -236,6 +238,7 @@ const Admin = () => {
           {tab === "dashboard" && <AdminDashboardTab leads={leads} bookings={bookings} products={products} diagnostics={diagnostics} subscriptions={subscriptions} payments={payments} />}
           {tab === "finance" && <AdminFinanceTab subscriptions={subscriptions} payments={payments} leads={leads} fetchAll={fetchAll} />}
           {tab === "billing" && <AdminBillingTab leads={leads} fetchAll={fetchAll} />}
+          {tab === "invoice_settings" && <AdminInvoiceSettingsTab />}
           {tab === "leads" && <AdminLeadsTab leads={leads} fetchAll={fetchAll} />}
           {tab === "clients" && <AdminClientsTab leads={leads} bookings={bookings} products={products} subscriptions={subscriptions} fetchAll={fetchAll} />}
           {tab === "hosting" && <AdminHostingTab subscriptions={subscriptions} leads={leads} payments={payments} fetchAll={fetchAll} />}

@@ -7,8 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, FileText, Download, Trash2, Eye, Copy, ArrowRightLeft } from "lucide-react";
-import { format } from "date-fns";
+import { Plus, FileText, Download, Trash2, Eye, Copy, ArrowRightLeft, Package, Search } from "lucide-react";
+import { format, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
 
 interface InvoiceItem {
@@ -40,6 +40,14 @@ interface Invoice {
   created_at: string;
 }
 
+interface ServiceItem {
+  id: string;
+  name: string;
+  description: string;
+  unit_price: number;
+  category: string;
+}
+
 const STATUS_LABELS: Record<string, { label: string; class: string }> = {
   brouillon: { label: "Brouillon", class: "bg-muted text-muted-foreground" },
   envoyé: { label: "Envoyé", class: "bg-primary/20 text-primary" },
@@ -62,6 +70,11 @@ const AdminBillingTab = ({ leads, fetchAll }: Props) => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState<string | null>(null);
+  const [serviceCatalog, setServiceCatalog] = useState<ServiceItem[]>([]);
+  const [showCatalog, setShowCatalog] = useState(false);
+  const [catalogSearch, setCatalogSearch] = useState("");
+  const [defaultSettings, setDefaultSettings] = useState<any>({});
+  const [searchInvoice, setSearchInvoice] = useState("");
 
   // Form state
   const [formType, setFormType] = useState<string>("devis");
@@ -87,11 +100,26 @@ const AdminBillingTab = ({ leads, fetchAll }: Props) => {
     if (data) setInvoices(data as Invoice[]);
   };
 
-  useEffect(() => { fetchInvoices(); }, []);
+  useEffect(() => {
+    fetchInvoices();
+    // Load service catalog and default settings
+    const loadSettings = async () => {
+      const { data } = await supabase.from("admin_settings").select("*") as any;
+      if (data) {
+        const cat = data.find((d: any) => d.key === "service_catalog");
+        const leg = data.find((d: any) => d.key === "invoice_legal");
+        if (cat?.value) setServiceCatalog(cat.value);
+        if (leg?.value) setDefaultSettings(leg.value);
+      }
+    };
+    loadSettings();
+  }, []);
 
   const clientLeads = leads.filter(l => l.status === "client" || l.status === "converti");
 
   const resetForm = () => {
+    const payTerms = defaultSettings.default_payment_terms || "Paiement à réception de facture";
+    const validityDays = defaultSettings.default_validity_days || 30;
     setFormType("devis");
     setFormLeadId("");
     setFormClientName("");
@@ -100,9 +128,9 @@ const AdminBillingTab = ({ leads, fetchAll }: Props) => {
     setFormClientAddress("");
     setFormIssueDate(format(new Date(), "yyyy-MM-dd"));
     setFormDueDate("");
-    setFormValidityDate("");
+    setFormValidityDate(format(addDays(new Date(), validityDays), "yyyy-MM-dd"));
     setFormNotes("");
-    setFormPaymentTerms("Paiement à réception de facture");
+    setFormPaymentTerms(payTerms);
     setFormItems([{ description: "", quantity: 1, unit_price: 0, total: 0, sort_order: 0 }]);
     setEditingInvoice(null);
   };
@@ -130,6 +158,17 @@ const AdminBillingTab = ({ leads, fetchAll }: Props) => {
     setFormItems(prev => [...prev, { description: "", quantity: 1, unit_price: 0, total: 0, sort_order: prev.length }]);
   };
 
+  const addServiceToItems = (service: ServiceItem) => {
+    setFormItems(prev => {
+      // Replace empty first item, or append
+      if (prev.length === 1 && !prev[0].description && prev[0].unit_price === 0) {
+        return [{ description: service.description ? `${service.name} — ${service.description}` : service.name, quantity: 1, unit_price: service.unit_price, total: service.unit_price, sort_order: 0 }];
+      }
+      return [...prev, { description: service.description ? `${service.name} — ${service.description}` : service.name, quantity: 1, unit_price: service.unit_price, total: service.unit_price, sort_order: prev.length }];
+    });
+    toast.success(`"${service.name}" ajouté`);
+  };
+
   const removeItem = (index: number) => {
     if (formItems.length <= 1) return;
     setFormItems(prev => prev.filter((_, i) => i !== index));
@@ -144,7 +183,6 @@ const AdminBillingTab = ({ leads, fetchAll }: Props) => {
     setLoading(true);
     try {
       if (editingInvoice) {
-        // Update existing
         await supabase
           .from("invoices")
           .update({
@@ -164,7 +202,6 @@ const AdminBillingTab = ({ leads, fetchAll }: Props) => {
           })
           .eq("id", editingInvoice.id);
 
-        // Delete old items, insert new
         await supabase.from("invoice_items").delete().eq("invoice_id", editingInvoice.id);
         await supabase.from("invoice_items").insert(
           formItems.map((item, i) => ({
@@ -178,7 +215,6 @@ const AdminBillingTab = ({ leads, fetchAll }: Props) => {
         );
         toast.success("Document mis à jour");
       } else {
-        // Get next number
         const { data: numData } = await supabase.rpc("next_invoice_number", { p_type: formType });
         const number = numData || `${formType === "devis" ? "DEV" : "FACT"}-${new Date().getFullYear()}-0001`;
 
@@ -283,7 +319,6 @@ const AdminBillingTab = ({ leads, fetchAll }: Props) => {
       const { data: numData } = await supabase.rpc("next_invoice_number", { p_type: "facture" });
       const number = numData || `FACT-${new Date().getFullYear()}-0001`;
 
-      // Get items from devis
       const { data: items } = await supabase
         .from("invoice_items")
         .select("*")
@@ -325,7 +360,6 @@ const AdminBillingTab = ({ leads, fetchAll }: Props) => {
         );
       }
 
-      // Mark devis as accepted
       await supabase.from("invoices").update({ status: "accepté" }).eq("id", devis.id);
 
       toast.success(`Facture ${number} créée depuis le devis`);
@@ -336,32 +370,33 @@ const AdminBillingTab = ({ leads, fetchAll }: Props) => {
     setLoading(false);
   };
 
-  const generatePDFHtml = async (invoice: Invoice): Promise<string> => {
-    const { data: items } = await supabase
-      .from("invoice_items")
-      .select("*")
-      .eq("invoice_id", invoice.id)
-      .order("sort_order");
-
-    const response = await supabase.functions.invoke("generate-invoice-pdf", {
-      body: { invoice, items: items || [] },
-    });
-
-    if (response.error) throw new Error(response.error.message);
-    return atob(response.data.pdf_base64);
-  };
-
   const handleDownloadPDF = async (invoice: Invoice) => {
     setGenerating(invoice.id);
     try {
-      const html = await generatePDFHtml(invoice);
+      const { data: items } = await supabase
+        .from("invoice_items")
+        .select("*")
+        .eq("invoice_id", invoice.id)
+        .order("sort_order");
+
+      // Load company settings for PDF
+      const { data: settingsData } = await supabase.from("admin_settings").select("*") as any;
+      const companyInfo = settingsData?.find((d: any) => d.key === "company_info")?.value || {};
+      const invoiceLegal = settingsData?.find((d: any) => d.key === "invoice_legal")?.value || {};
+
+      const response = await supabase.functions.invoke("generate-invoice-pdf", {
+        body: { invoice, items: items || [], companyInfo, invoiceLegal },
+      });
+
+      if (response.error) throw new Error(response.error.message);
+      const html = atob(response.data.pdf_base64);
       const printWindow = window.open("", "_blank");
       if (printWindow) {
         printWindow.document.write(html);
         printWindow.document.close();
         setTimeout(() => printWindow.print(), 500);
       }
-      toast.success("PDF téléchargé");
+      toast.success("PDF généré");
     } catch (e: any) {
       toast.error("Erreur lors de la génération du PDF");
       console.error(e);
@@ -369,26 +404,38 @@ const AdminBillingTab = ({ leads, fetchAll }: Props) => {
     setGenerating(null);
   };
 
-
   const filtered = invoices.filter(inv => {
     if (filterType !== "all" && inv.type !== filterType) return false;
     if (filterStatus !== "all" && inv.status !== filterStatus) return false;
+    if (searchInvoice) {
+      const q = searchInvoice.toLowerCase();
+      if (!inv.number.toLowerCase().includes(q) && !inv.client_name.toLowerCase().includes(q) && !(inv.client_email || "").toLowerCase().includes(q)) return false;
+    }
     return true;
   });
+
+  const filteredCatalog = serviceCatalog.filter(s =>
+    s.name.toLowerCase().includes(catalogSearch.toLowerCase()) || s.category.toLowerCase().includes(catalogSearch.toLowerCase())
+  );
 
   // Stats
   const totalDevis = invoices.filter(i => i.type === "devis").length;
   const totalFactures = invoices.filter(i => i.type === "facture").length;
   const totalPaid = invoices.filter(i => i.type === "facture" && i.status === "payé").reduce((s, i) => s + Number(i.total_ttc), 0);
   const totalPending = invoices.filter(i => i.type === "facture" && i.status !== "payé" && i.status !== "annulé").reduce((s, i) => s + Number(i.total_ttc), 0);
+  const devisEnAttente = invoices.filter(i => i.type === "devis" && (i.status === "envoyé" || i.status === "brouillon")).length;
 
   return (
     <div className="space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div className="card-surface p-4 rounded-xl">
           <p className="text-xs text-muted-foreground">Devis émis</p>
           <p className="text-2xl font-extrabold mt-1">{totalDevis}</p>
+        </div>
+        <div className="card-surface p-4 rounded-xl">
+          <p className="text-xs text-muted-foreground">Devis en attente</p>
+          <p className="text-2xl font-extrabold text-conversion mt-1">{devisEnAttente}</p>
         </div>
         <div className="card-surface p-4 rounded-xl">
           <p className="text-xs text-muted-foreground">Factures émises</p>
@@ -406,9 +453,14 @@ const AdminBillingTab = ({ leads, fetchAll }: Props) => {
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+            <input value={searchInvoice} onChange={e => setSearchInvoice(e.target.value)} placeholder="Rechercher..."
+              className="bg-secondary/50 rounded-xl pl-9 pr-3 py-2 text-xs outline-none border border-border/20 focus:border-primary/30 w-48" />
+          </div>
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-[140px] h-9 text-xs"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-[120px] h-9 text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tous types</SelectItem>
               <SelectItem value="devis">Devis</SelectItem>
@@ -416,7 +468,7 @@ const AdminBillingTab = ({ leads, fetchAll }: Props) => {
             </SelectContent>
           </Select>
           <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-[140px] h-9 text-xs"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-[120px] h-9 text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tous statuts</SelectItem>
               <SelectItem value="brouillon">Brouillon</SelectItem>
@@ -445,15 +497,16 @@ const AdminBillingTab = ({ leads, fetchAll }: Props) => {
               <th className="text-left p-3 font-medium">N°</th>
               <th className="text-left p-3 font-medium">Type</th>
               <th className="text-left p-3 font-medium">Client</th>
+              <th className="text-left p-3 font-medium">Contact</th>
               <th className="text-left p-3 font-medium">Date</th>
-              <th className="text-right p-3 font-medium">Montant TTC</th>
+              <th className="text-right p-3 font-medium">Montant</th>
               <th className="text-center p-3 font-medium">Statut</th>
               <th className="text-right p-3 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 && (
-              <tr><td colSpan={7} className="text-center py-12 text-muted-foreground">Aucun document trouvé</td></tr>
+              <tr><td colSpan={8} className="text-center py-12 text-muted-foreground">Aucun document trouvé</td></tr>
             )}
             {filtered.map(inv => {
               const st = STATUS_LABELS[inv.status] || { label: inv.status, class: "bg-muted text-muted-foreground" };
@@ -466,10 +519,25 @@ const AdminBillingTab = ({ leads, fetchAll }: Props) => {
                     </span>
                   </td>
                   <td className="p-3 font-medium">{inv.client_name}</td>
+                  <td className="p-3 text-xs text-muted-foreground">
+                    {inv.client_email && <div>{inv.client_email}</div>}
+                    {inv.client_phone && <div>{inv.client_phone}</div>}
+                  </td>
                   <td className="p-3 text-muted-foreground">{format(new Date(inv.issue_date), "dd/MM/yyyy")}</td>
                   <td className="p-3 text-right font-semibold">{Number(inv.total_ttc).toLocaleString("fr-FR")}€</td>
                   <td className="p-3 text-center">
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${st.class}`}>{st.label}</span>
+                    <select
+                      value={inv.status}
+                      onChange={e => handleStatusChange(inv, e.target.value)}
+                      className={`text-xs font-medium px-2 py-0.5 rounded-full border-0 cursor-pointer outline-none ${st.class}`}
+                    >
+                      <option value="brouillon">Brouillon</option>
+                      <option value="envoyé">Envoyé</option>
+                      <option value="accepté">Accepté</option>
+                      <option value="payé">Payé</option>
+                      <option value="annulé">Annulé</option>
+                      <option value="refusé">Refusé</option>
+                    </select>
                   </td>
                   <td className="p-3">
                     <div className="flex items-center justify-end gap-1">
@@ -498,7 +566,7 @@ const AdminBillingTab = ({ leads, fetchAll }: Props) => {
 
       {/* Create / Edit Modal */}
       <Dialog open={showModal} onOpenChange={(v) => { if (!v) { resetForm(); } setShowModal(v); }}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingInvoice ? `Modifier ${editingInvoice.number}` : `Nouveau ${formType === "devis" ? "devis" : "facture"}`}
@@ -567,12 +635,43 @@ const AdminBillingTab = ({ leads, fetchAll }: Props) => {
               </div>
             </div>
 
-            {/* Items */}
+            {/* Items with service catalog */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-xs font-semibold">Lignes de {formType}</Label>
-                <Button size="sm" variant="ghost" onClick={addItem}><Plus className="size-3 mr-1" /> Ajouter</Button>
+                <div className="flex gap-2">
+                  {serviceCatalog.length > 0 && (
+                    <Button size="sm" variant="outline" onClick={() => setShowCatalog(!showCatalog)} className="text-xs h-7">
+                      <Package className="size-3 mr-1" /> Catalogue
+                    </Button>
+                  )}
+                  <Button size="sm" variant="ghost" onClick={addItem} className="text-xs h-7"><Plus className="size-3 mr-1" /> Ligne vide</Button>
+                </div>
               </div>
+
+              {/* Service catalog panel */}
+              {showCatalog && serviceCatalog.length > 0 && (
+                <div className="bg-secondary/30 rounded-xl p-3 border border-border/20">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Search className="size-3.5 text-muted-foreground" />
+                    <input value={catalogSearch} onChange={e => setCatalogSearch(e.target.value)} placeholder="Rechercher un service..."
+                      className="bg-background rounded-lg px-2 py-1 text-xs outline-none border border-border/20 flex-1" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5 max-h-[200px] overflow-y-auto">
+                    {filteredCatalog.map(s => (
+                      <button key={s.id} onClick={() => addServiceToItems(s)}
+                        className="flex items-center justify-between p-2 rounded-lg text-left hover:bg-primary/10 transition-colors text-xs">
+                        <div className="min-w-0">
+                          <span className="font-medium block truncate">{s.name}</span>
+                          <span className="text-muted-foreground text-[10px]">{s.category}</span>
+                        </div>
+                        <span className="text-primary font-semibold ml-2 whitespace-nowrap">{s.unit_price}€</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-2">
                 {formItems.map((item, index) => (
                   <div key={index} className="flex gap-2 items-start">
