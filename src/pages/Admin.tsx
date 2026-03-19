@@ -37,6 +37,7 @@ const SIDEBAR_SECTIONS = [
     label: "Commercial",
     items: [
       { id: "leads" as Tab, label: "Pipeline CRM", icon: Users },
+      { id: "hubspot" as Tab, label: "HubSpot CRM", icon: Briefcase },
       { id: "clients" as Tab, label: "Portefeuille Clients", icon: Briefcase },
       { id: "bookings" as Tab, label: "Rendez-vous", icon: Calendar },
     ],
