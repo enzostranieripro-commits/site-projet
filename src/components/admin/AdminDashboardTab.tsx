@@ -106,11 +106,87 @@ const AdminDashboardTab = ({ leads, bookings, products, diagnostics, subscriptio
   const typeIcon = (t: string) => t === "email" ? <Mail className="size-3.5" /> : t === "call" ? <Phone className="size-3.5" /> : <MessageSquare className="size-3.5" />;
   const urgentFollowUps = followUps.filter((f: any) => isOverdue(f.scheduled_at) || isToday(f.scheduled_at)).length;
 
+  const overdueFollowUps = followUps.filter((f: any) => isOverdue(f.scheduled_at));
+  const todayFollowUps = followUps.filter((f: any) => isToday(f.scheduled_at) && !isOverdue(f.scheduled_at));
+  const newLeadsRecent = leads.filter((l: any) => {
+    const h = (Date.now() - new Date(l.created_at).getTime()) / (1000 * 60 * 60);
+    return h < 24 && (l.status || "nouveau") === "nouveau";
+  });
+  const pendingBookings = bookings.filter((b: any) => b.status === "pending");
+
+  const notifications = [
+    ...overdueFollowUps.map((f: any) => ({
+      type: "danger" as const,
+      icon: <AlertTriangle className="size-4" />,
+      title: `Relance en retard — ${(f as any).audit_requests?.prenom} ${(f as any).audit_requests?.nom}`,
+      sub: `Prévue le ${new Date(f.scheduled_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })} à ${new Date(f.scheduled_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`,
+      id: f.id,
+    })),
+    ...newLeadsRecent.map((l: any) => ({
+      type: "info" as const,
+      icon: <Users className="size-4" />,
+      title: `Nouveau lead — ${l.prenom} ${l.nom}`,
+      sub: `${l.secteur} • ${l.email}`,
+      id: l.id,
+    })),
+    ...todayFollowUps.map((f: any) => ({
+      type: "warning" as const,
+      icon: <Clock className="size-4" />,
+      title: `Relance aujourd'hui — ${(f as any).audit_requests?.prenom} ${(f as any).audit_requests?.nom}`,
+      sub: `À ${new Date(f.scheduled_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })} • ${f.type}`,
+      id: f.id,
+    })),
+    ...pendingBookings.slice(0, 3).map((b: any) => ({
+      type: "warning" as const,
+      icon: <Calendar className="size-4" />,
+      title: `RDV en attente — ${b.prenom} ${b.nom}`,
+      sub: `${b.date} à ${b.time}`,
+      id: b.id,
+    })),
+  ];
+
+  const notifStyles = {
+    danger: { bg: "bg-destructive/5", border: "border-destructive/20", iconBg: "bg-destructive/15", iconText: "text-destructive", badge: "bg-destructive/15 text-destructive" },
+    warning: { bg: "bg-conversion/5", border: "border-conversion/20", iconBg: "bg-conversion/15", iconText: "text-conversion", badge: "bg-conversion/15 text-conversion" },
+    info: { bg: "bg-blue-500/5", border: "border-blue-500/20", iconBg: "bg-blue-500/15", iconText: "text-blue-400", badge: "bg-blue-500/15 text-blue-400" },
+  };
+
   return (
     <div className="space-y-6">
+      {/* Notification Center */}
+      {notifications.length > 0 && (
+        <div className="space-y-2 animate-fade-in">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-2 h-2 rounded-full bg-destructive animate-pulse" />
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Centre de notifications — {notifications.length} action{notifications.length > 1 ? "s" : ""} requise{notifications.length > 1 ? "s" : ""}
+            </h3>
+          </div>
+          <div className="grid gap-2 md:grid-cols-2">
+            {notifications.slice(0, 6).map((n) => {
+              const s = notifStyles[n.type];
+              return (
+                <div key={n.id} className={`${s.bg} border ${s.border} rounded-xl px-4 py-3 flex items-center gap-3 transition-all hover:scale-[1.01]`}>
+                  <div className={`w-9 h-9 rounded-lg ${s.iconBg} ${s.iconText} flex items-center justify-center flex-shrink-0`}>
+                    {n.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{n.title}</p>
+                    <p className="text-[11px] text-muted-foreground truncate">{n.sub}</p>
+                  </div>
+                  <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${s.badge} flex-shrink-0`}>
+                    {n.type === "danger" ? "Urgent" : n.type === "warning" ? "À traiter" : "Nouveau"}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Welcome + today highlight */}
-      {todayLeads > 0 && (
-        <div className="bg-primary/5 border border-primary/20 rounded-2xl px-5 py-3 flex items-center gap-3">
+      {todayLeads > 0 && notifications.length === 0 && (
+        <div className="bg-primary/5 border border-primary/20 rounded-2xl px-5 py-3 flex items-center gap-3 animate-fade-in">
           <ArrowUpRight className="size-5 text-primary" />
           <p className="text-sm"><span className="font-semibold text-primary">{todayLeads} nouveau{todayLeads > 1 ? "x" : ""} lead{todayLeads > 1 ? "s" : ""}</span> aujourd'hui</p>
         </div>
