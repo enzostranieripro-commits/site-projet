@@ -233,6 +233,15 @@ const AdminHostingTab = ({ subscriptions, leads, payments = [], fetchAll }: Admi
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher client, domaine..."
                 className="w-full bg-secondary/50 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none border border-border/20 focus:border-primary/30 transition-colors" />
             </div>
+            <Button variant="outline" size="sm" className="text-xs flex-shrink-0" onClick={() => {
+              const rows = enriched.map((s: any) => `${s.lead?.prenom || ""},${s.lead?.nom || ""},${s.lead?.email || ""},${s.offer_level},${s.payment_type},${s.monthly_amount},${s.hosting_included ? "Oui" : "Non"},${s.hosting_domain || ""},${s.payment_status}`);
+              const csv = "Prénom,Nom,Email,Offre,Type,Montant,Hébergé,Domaine,Statut paiement\n" + rows.join("\n");
+              const blob = new Blob([csv], { type: "text/csv" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a"); a.href = url; a.download = "abonnements.csv"; a.click();
+            }}>
+              <Download className="size-3.5 mr-1.5" />Export
+            </Button>
             <div className="flex gap-1">
               <button onClick={() => setFilterStatus(null)}
                 className={`text-[11px] px-3 py-1.5 rounded-full font-medium transition-all ${!filterStatus ? "bg-primary/15 text-primary" : "bg-secondary/50 text-muted-foreground"}`}>
