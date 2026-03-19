@@ -26,6 +26,8 @@ interface AdminLeadsTabProps {
 const AdminLeadsTab = ({ leads, fetchAll }: AdminLeadsTabProps) => {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [selectedLead, setSelectedLead] = useState<any | null>(null);
   const [notes, setNotes] = useState<any[]>([]);
   const [followUps, setFollowUps] = useState<any[]>([]);
@@ -38,7 +40,10 @@ const AdminLeadsTab = ({ leads, fetchAll }: AdminLeadsTabProps) => {
   const filteredLeads = leads.filter((l: any) => {
     const matchSearch = `${l.prenom} ${l.nom} ${l.email} ${l.secteur}`.toLowerCase().includes(search.toLowerCase());
     const matchStatus = !filterStatus || (l.status || "nouveau") === filterStatus;
-    return matchSearch && matchStatus;
+    const leadDate = l.created_at?.slice(0, 10);
+    const matchDateFrom = !dateFrom || leadDate >= dateFrom;
+    const matchDateTo = !dateTo || leadDate <= dateTo;
+    return matchSearch && matchStatus && matchDateFrom && matchDateTo;
   });
 
   const kanbanColumns = useMemo(() => {
