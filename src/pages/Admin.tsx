@@ -104,6 +104,7 @@ const Admin = () => {
   const hostingAlerts = subscriptions.filter((s: any) => s.payment_status === "retard" || s.payment_status === "impaye").length;
   const pendingBookings = bookings.filter((b: any) => b.status === "pending").length;
   const newLeads = leads.filter((l: any) => (l.status || "nouveau") === "nouveau").length;
+  const totalNotifs = hostingAlerts + pendingBookings + newLeads;
 
   const getBadge = (id: Tab) => {
     if (id === "hosting" && hostingAlerts > 0) return { count: hostingAlerts, type: "destructive" as const };
