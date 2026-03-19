@@ -28,6 +28,7 @@ const SIDEBAR_SECTIONS = [
       { id: "dashboard" as Tab, label: "Dashboard", icon: LayoutDashboard },
       { id: "finance" as Tab, label: "Finances", icon: DollarSign },
       { id: "billing" as Tab, label: "Devis & Factures", icon: FileText },
+      { id: "invoice_settings" as Tab, label: "Réglages Devis", icon: Settings },
     ],
   },
   {
