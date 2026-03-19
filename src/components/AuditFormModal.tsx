@@ -83,6 +83,22 @@ export default function AuditFormModal({ open, onClose, productType }: AuditForm
       localStorage.setItem("product_requests", JSON.stringify(productRequests));
     }
 
+ fetch("https://hooks.zapier.com/hooks/catch/26893257/upsefk1/", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    nom: form.nom,
+    prenom: form.prenom,
+    email: form.email,
+    telephone: form.telephone,
+    secteur: form.secteur,
+    besoin: productType || "Audit général",
+    date_rdv: availableSlots[selectedDateIdx]?.date
+      .toLocaleDateString("fr-FR"),
+    heure_rdv: selectedSlot,
+    source: "Studio Nova"
+  })
+}).catch(err => console.error("Webhook:", err)); 
     setStep("done");
   };
 
