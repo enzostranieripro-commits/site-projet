@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, Clock, MapPin, Mail, Phone, User, ChevronLeft, ChevronRight, List, CalendarDays } from "lucide-react";
+import { Calendar, Clock, MapPin, Mail, Phone, User, ChevronLeft, ChevronRight, List, CalendarDays, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addMonths, subMonths, isToday, isSameDay } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -86,7 +86,7 @@ const AdminBookingsTab = ({ bookings, fetchAll }: Props) => {
         ))}
       </div>
 
-      {/* View toggle */}
+      {/* View toggle + export */}
       <div className="flex items-center justify-between">
         <div className="flex gap-1 bg-secondary/50 rounded-xl p-1">
           <button onClick={() => setView("calendar")}
@@ -98,7 +98,17 @@ const AdminBookingsTab = ({ bookings, fetchAll }: Props) => {
             <List className="size-3.5" /> Liste
           </button>
         </div>
-        {view === "calendar" && (
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm" className="text-xs" onClick={() => {
+            const rows = bookings.map((b: any) => `${b.date},${b.time},${b.prenom},${b.nom},${b.email},${b.telephone || ""},${b.secteur},${b.besoin || ""},${b.status}`);
+            const csv = "Date,Heure,Prénom,Nom,Email,Téléphone,Secteur,Besoin,Statut\n" + rows.join("\n");
+            const blob = new Blob([csv], { type: "text/csv" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a"); a.href = url; a.download = "rendez-vous.csv"; a.click();
+          }}>
+            <Download className="size-3.5 mr-1.5" />Export CSV
+          </Button>
+          {view === "calendar" && (
           <div className="flex items-center gap-3">
             <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}>
               <ChevronLeft className="size-4" />
@@ -111,6 +121,7 @@ const AdminBookingsTab = ({ bookings, fetchAll }: Props) => {
             </Button>
           </div>
         )}
+        </div>
       </div>
 
       {/* Calendar view */}
