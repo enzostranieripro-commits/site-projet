@@ -185,7 +185,12 @@ const AdminLeadsTab = ({ leads, fetchAll }: AdminLeadsTabProps) => {
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher par nom, email, secteur..."
               className="w-full bg-secondary/50 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none border border-border/20 focus:border-primary/30 transition-colors" />
           </div>
-          <div className="flex items-center gap-2">
+           <div className="flex items-center gap-2">
+            <select value={filterSecteur || ""} onChange={e => setFilterSecteur(e.target.value || null)}
+              className="bg-secondary/50 rounded-xl border border-border/20 px-3 py-2.5 text-xs outline-none text-foreground min-w-[140px]">
+              <option value="">Tous secteurs</option>
+              {secteurs.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
             <div className="flex items-center gap-1.5 bg-secondary/50 rounded-xl border border-border/20 px-3 py-1.5">
               <CalendarClock className="size-3.5 text-muted-foreground" />
               <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
@@ -194,8 +199,8 @@ const AdminLeadsTab = ({ leads, fetchAll }: AdminLeadsTabProps) => {
               <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
                 className="bg-transparent text-xs outline-none w-[110px] text-foreground" />
             </div>
-            {(dateFrom || dateTo) && (
-              <button onClick={() => { setDateFrom(""); setDateTo(""); }}
+            {(dateFrom || dateTo || filterSecteur) && (
+              <button onClick={() => { setDateFrom(""); setDateTo(""); setFilterSecteur(null); }}
                 className="text-muted-foreground hover:text-foreground p-1.5 rounded-lg hover:bg-secondary/50 transition-colors">
                 <X className="size-3.5" />
               </button>
