@@ -235,7 +235,7 @@ const Admin = () => {
 
         {/* Content area */}
         <main className="flex-1 p-8 overflow-y-auto">
-          {tab === "dashboard" && <AdminDashboardTab leads={leads} bookings={bookings} products={products} diagnostics={diagnostics} subscriptions={subscriptions} payments={payments} />}
+          {tab === "dashboard" && <AdminDashboardTab leads={leads} bookings={bookings} products={products} diagnostics={diagnostics} subscriptions={subscriptions} payments={payments} onNavigate={(t) => setTab(t as Tab)} />}
           {tab === "finance" && <AdminFinanceTab subscriptions={subscriptions} payments={payments} leads={leads} fetchAll={fetchAll} />}
           {tab === "billing" && <AdminBillingTab leads={leads} fetchAll={fetchAll} />}
           {tab === "invoice_settings" && <AdminInvoiceSettingsTab />}

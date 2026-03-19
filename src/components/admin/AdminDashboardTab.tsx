@@ -175,7 +175,8 @@ const AdminDashboardTab = ({ leads, bookings, products, diagnostics, subscriptio
             {notifications.slice(0, 6).map((n) => {
               const s = notifStyles[n.type];
               return (
-                <div key={n.id} className={`${s.bg} border ${s.border} rounded-xl px-4 py-3 flex items-center gap-3 transition-all hover:scale-[1.01]`}>
+                <button key={n.id} onClick={n.action}
+                  className={`${s.bg} border ${s.border} rounded-xl px-4 py-3 flex items-center gap-3 transition-all hover:scale-[1.01] cursor-pointer text-left w-full group`}>
                   <div className={`w-9 h-9 rounded-lg ${s.iconBg} ${s.iconText} flex items-center justify-center flex-shrink-0`}>
                     {n.icon}
                   </div>
@@ -183,10 +184,15 @@ const AdminDashboardTab = ({ leads, bookings, products, diagnostics, subscriptio
                     <p className="text-sm font-medium truncate">{n.title}</p>
                     <p className="text-[11px] text-muted-foreground truncate">{n.sub}</p>
                   </div>
-                  <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${s.badge} flex-shrink-0`}>
-                    {n.type === "danger" ? "Urgent" : n.type === "warning" ? "À traiter" : "Nouveau"}
-                  </span>
-                </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${s.badge}`}>
+                      {n.type === "danger" ? "Urgent" : n.type === "warning" ? "À traiter" : "Nouveau"}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground/50 group-hover:text-foreground flex items-center gap-0.5 transition-colors">
+                      {n.actionLabel} <ExternalLink className="size-2.5" />
+                    </span>
+                  </div>
+                </button>
               );
             })}
           </div>
